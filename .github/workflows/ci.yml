@@ -1,0 +1,51 @@
+# 职责：校验——PR 与 push main 时构建、静态检查、跑单测，保证 main 始终可构建。
+# 触发：pull_request、push 到 main。
+# 产出：仅校验制品（debug APK 上传为 artifact 供人工装机），不发布。
+# 目标时长：≤10 分钟。
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Static checks
+        run: ./gradlew lint ktlintCheck detekt --console=plain
+
+      - name: Unit tests
+        run: ./gradlew test --console=plain
+
+      - name: Assemble debug APK
+        run: ./gradlew assembleDebug --console=plain
+
+      - name: Upload debug APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: warn
