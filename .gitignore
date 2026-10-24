@@ -1,0 +1,42 @@
+# ── 版权红线：谱子与转换产物绝不入库 ──────────────────
+# Songsterr 抓取的 GP 谱及其衍生 JSON 只放本地，见 docs/ROADMAP.md M3
+local_phrases/
+
+# ── 密钥与环境变量 ────────────────────────────────────
+*.env
+.env
+*.jks
+*.keystore
+key.properties
+
+# ── Android / Gradle ──────────────────────────────────
+.gradle/
+build/
+app/build/
+local.properties
+*.apk
+*.aab
+*.ap_
+*.dex
+captures/
+.externalNativeBuild/
+.cxx/
+
+# ── IDE ───────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+
+# ── Agent 会话产物 ─────────────────────────────────────
+.zcode/
+
+# ── OS ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ── Python（tools/ 转换器）─────────────────────────────
+__pycache__/
+*.pyc
+.venv/
+venv/
