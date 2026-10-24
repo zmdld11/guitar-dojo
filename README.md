@@ -32,6 +32,7 @@ Kotlin + Jetpack Compose（Material 3），minSdk 26。音频引擎独立为 `:c
 - [开发任务目标（ROADMAP）](docs/ROADMAP.md) — 里程碑、issue 拆分、验收标准
 - [M3 乐句库设计](docs/M3-乐句库设计.md) — JSON Schema v1、GP 转换规则、播放引擎结构
 - [M4 每日训练流设计](docs/M4-每日训练流设计.md) — 计划规则、课程资产、Room 表结构、向导状态机
+- [M5 考核系统设计](docs/M5-考核系统设计.md) — 音符切分、DTW 对齐、双维度评分、录音回放
 - [立项调研报告](docs/调研报告.md) — 数据源、音高检测方案、训练体系参考
 - [手型与教学插图提示词](docs/画图提示词.md) — 交给文生图模型出图的完整清单
 
