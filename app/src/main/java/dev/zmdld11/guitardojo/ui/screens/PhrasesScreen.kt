@@ -23,9 +23,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.FileUpload
 import androidx.compose.material.icons.outlined.LibraryMusic
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -114,6 +116,9 @@ fun PhrasesScreen(
                     )
                 }
                 Spacer(Modifier.width(12.dp))
+                IconButton(onClick = viewModel::refresh) {
+                    Icon(Icons.Outlined.Refresh, contentDescription = "刷新乐句库", modifier = Modifier.size(20.dp))
+                }
                 TextButton(
                     onClick = {
                         importLauncher.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
