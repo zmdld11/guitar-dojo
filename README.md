@@ -1,5 +1,7 @@
 # guitar-dojo · 吉他道场
 
+[![CI](https://github.com/zmdld11/guitar-dojo/actions/workflows/ci.yml/badge.svg)](https://github.com/zmdld11/guitar-dojo/actions/workflows/ci.yml)
+
 一个给「想坚持练琴但总断更」的电吉他初学者的安卓日常训练 App。
 
 不是又一个调音器合集，而是把**调音 → 设备调试 → 今日乐句 → 考核 → 保养收尾**串成一条完整的每日训练流：走完一遍，才算完成今天的练习。
@@ -33,12 +35,34 @@ Kotlin + Jetpack Compose（Material 3），minSdk 26。音频引擎独立为 `:c
 
 ## 构建
 
-工程尚未初始化，M0 里程碑完成后补全本节。
+### 环境要求
+
+| 项 | 版本 |
+| --- | --- |
+| JDK | 17 |
+| Android SDK | compileSdk 35、build-tools 35.0.0 |
+| Gradle | 8.14（仓库自带 wrapper，无需单独安装） |
+| 最低系统 | Android 8.0（API 26） |
+
+首次构建前确认 `local.properties` 里的 `sdk.dir` 指向本机 Android SDK；若设置了 `ANDROID_HOME` 可省略。
+
+### 常用命令
 
 ```bash
-# 预计命令，M0 完成后生效
-./gradlew assembleDebug
+./gradlew assembleDebug            # 构建 debug APK
+./gradlew test                     # 单元测试
+./gradlew lint ktlintCheck detekt  # 静态检查
+./gradlew installDebug             # 安装到已连接的设备/模拟器
 ```
+
+APK 输出在 `app/build/outputs/apk/debug/`。
+
+### 模块结构
+
+| 模块 | 职责 |
+| --- | --- |
+| `:app` | Compose UI、导航、业务逻辑 |
+| `:core:audio` | 音频引擎（节拍调度、音高检测、播放），纯 Kotlin 接口，不依赖 Compose 与 Context |
 
 ## 版权声明
 
