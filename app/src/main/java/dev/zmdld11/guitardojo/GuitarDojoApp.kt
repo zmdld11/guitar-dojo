@@ -26,23 +26,29 @@ import dev.zmdld11.guitardojo.ui.screens.PhrasesScreen
 import dev.zmdld11.guitardojo.ui.screens.ProfileScreen
 import dev.zmdld11.guitardojo.ui.screens.TodayScreen
 import dev.zmdld11.guitardojo.ui.screens.ToolsScreen
+import dev.zmdld11.guitardojo.ui.screens.metronome.MetronomeScreen
 
 private const val PAGE_FADE_MILLIS = 180
 private const val PAGE_SLIDE_MILLIS = 240
+
+private const val METRONOME_ROUTE = "metronome"
 
 @Composable
 fun GuitarDojoApp() {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
+    val isTopLevel = TopLevelDestination.entries.any { it.route == currentRoute }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
-            GuitarDojoBottomBar(
-                currentRoute = currentRoute,
-                onNavigate = navController::navigateToTopLevel,
-            )
+            if (isTopLevel) {
+                GuitarDojoBottomBar(
+                    currentRoute = currentRoute,
+                    onNavigate = navController::navigateToTopLevel,
+                )
+            }
         },
     ) { innerPadding ->
         NavHost(
@@ -65,9 +71,14 @@ fun GuitarDojoApp() {
             },
         ) {
             composable(TopLevelDestination.TODAY.route) { TodayScreen() }
-            composable(TopLevelDestination.TOOLS.route) { ToolsScreen() }
+            composable(TopLevelDestination.TOOLS.route) {
+                ToolsScreen(onOpenMetronome = { navController.navigate(METRONOME_ROUTE) })
+            }
             composable(TopLevelDestination.PHRASES.route) { PhrasesScreen() }
             composable(TopLevelDestination.PROFILE.route) { ProfileScreen() }
+            composable(METRONOME_ROUTE) {
+                MetronomeScreen(onBack = { navController.popBackStack() })
+            }
         }
     }
 }

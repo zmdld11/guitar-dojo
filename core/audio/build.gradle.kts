@@ -23,5 +23,7 @@ android {
 
 // 音频核心对外保持纯 Kotlin：不依赖 Compose、Activity、Context。
 dependencies {
+    // SharedFlow 出现在公开 API 上，用 api 让调用方无需重复声明
+    api(libs.kotlinx.coroutines.core)
     testImplementation(libs.junit)
 }

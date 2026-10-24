@@ -12,8 +12,8 @@ android {
         applicationId = "dev.zmdld11.guitardojo"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.0.1"
+        versionCode = 2
+        versionName = "0.1.0"
         vectorDrawables { useSupportLibrary = true }
     }
 
@@ -38,6 +38,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     packaging {

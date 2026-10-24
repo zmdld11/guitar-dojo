@@ -20,14 +20,22 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.zmdld11.guitardojo.metronome.MetronomeHolder
 import dev.zmdld11.guitardojo.ui.components.MilestoneNote
 
 @Composable
-fun ToolsScreen(modifier: Modifier = Modifier) {
+fun ToolsScreen(
+    onOpenMetronome: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val metronomePlaying by MetronomeHolder.isPlaying.collectAsStateWithLifecycle()
+
     Column(
         modifier =
             modifier
@@ -50,9 +58,10 @@ fun ToolsScreen(modifier: Modifier = Modifier) {
         Spacer(Modifier.height(24.dp))
         ToolCard(
             title = "节拍器",
-            description = "1-300 BPM、拍号与细分、Tap Tempo、小节循环显示",
-            milestone = "M1",
+            description = "1-300 BPM、拍号与细分、Tap 定速、小节循环显示",
+            milestone = if (metronomePlaying) "播放中" else null,
             icon = Icons.Outlined.Timer,
+            onClick = onOpenMetronome,
         )
         Spacer(Modifier.height(12.dp))
         ToolCard(
@@ -60,9 +69,10 @@ fun ToolsScreen(modifier: Modifier = Modifier) {
             description = "麦克风实时音高检测，六弦逐弦调音，也可当扒谱拾音用",
             milestone = "M2",
             icon = Icons.Outlined.GraphicEq,
+            onClick = null,
         )
         Spacer(Modifier.height(16.dp))
-        MilestoneNote("节拍器基于音频时钟调度以保证不漂移；调音器针对电吉他泛音误判单独调参。")
+        MilestoneNote("调音器排在 M2，针对电吉他泛音误判单独调参；节拍器已可用。")
         Spacer(Modifier.height(24.dp))
     }
 }
@@ -71,14 +81,13 @@ fun ToolsScreen(modifier: Modifier = Modifier) {
 private fun ToolCard(
     title: String,
     description: String,
-    milestone: String,
+    milestone: String?,
     icon: ImageVector,
+    onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
-    OutlinedCard(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-    ) {
+    val cardModifier = modifier.fillMaxWidth()
+    val content: @Composable () -> Unit = {
         Row(
             modifier = Modifier.padding(18.dp),
             verticalAlignment = Alignment.Top,
@@ -105,16 +114,18 @@ private fun ToolCard(
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.weight(1f),
                     )
-                    Surface(
-                        shape = MaterialTheme.shapes.small,
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                    ) {
-                        Text(
-                            text = milestone,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                        )
+                    if (milestone != null) {
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                        ) {
+                            Text(
+                                text = milestone,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                            )
+                        }
                     }
                 }
                 Spacer(Modifier.height(6.dp))
@@ -125,5 +136,18 @@ private fun ToolCard(
                 )
             }
         }
+    }
+
+    if (onClick != null) {
+        OutlinedCard(
+            onClick = onClick,
+            modifier = cardModifier,
+            shape = MaterialTheme.shapes.large,
+        ) { content() }
+    } else {
+        OutlinedCard(
+            modifier = cardModifier,
+            shape = MaterialTheme.shapes.large,
+        ) { content() }
     }
 }
