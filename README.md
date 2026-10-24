@@ -30,6 +30,7 @@ Kotlin + Jetpack Compose（Material 3），minSdk 26。音频引擎独立为 `:c
 ## 项目文档
 
 - [开发任务目标（ROADMAP）](docs/ROADMAP.md) — 里程碑、issue 拆分、验收标准
+- [M3 乐句库设计](docs/M3-乐句库设计.md) — JSON Schema v1、GP 转换规则、播放引擎结构
 - [立项调研报告](docs/调研报告.md) — 数据源、音高检测方案、训练体系参考
 - [手型与教学插图提示词](docs/画图提示词.md) — 交给文生图模型出图的完整清单
 
@@ -53,6 +54,9 @@ Kotlin + Jetpack Compose（Material 3），minSdk 26。音频引擎独立为 `:c
 ./gradlew test                     # 单元测试
 ./gradlew lint ktlintCheck detekt  # 静态检查
 ./gradlew installDebug             # 安装到已连接的设备/模拟器
+
+python tools/build_builtin_phrases.py --check   # 校验内置乐句与生成脚本一致
+python tools/gp2json.py song.gp                 # GP7/8 谱转本地乐句 JSON
 ```
 
 APK 输出在 `app/build/outputs/apk/debug/`。
@@ -62,7 +66,25 @@ APK 输出在 `app/build/outputs/apk/debug/`。
 | 模块 | 职责 |
 | --- | --- |
 | `:app` | Compose UI、导航、业务逻辑 |
-| `:core:audio` | 音频引擎（节拍调度、音高检测、播放），纯 Kotlin 接口，不依赖 Compose 与 Context |
+| `:core:phrase` | 乐句 JSON Schema v1、解析与校验，纯 Kotlin |
+| `:core:audio` | 音频引擎（节拍调度、音高检测、变速播放），纯 Kotlin 接口，不依赖 Compose 与 Context |
+
+## 本地乐句（版权谱只在设备上）
+
+内置 8 条自编乐句放在 `app/src/main/assets/phrases/`，随仓库分发。从商业曲谱转换的乐句**只留在本机**：
+
+```bash
+# 1. 在电脑上把 Guitar Pro 7/8 的 .gp 转成 schema v1 JSON
+python tools/gp2json.py "D:/scores/song.gp"        # 默认输出 local_phrases/song.json
+
+# 2a. 应用内导入：把 JSON 拷到手机，乐句库右上角「导入」用系统文件选择器打开
+# 2b. 或直接推送到 App 的外部私有目录，重启 App 后自动加载
+adb push local_phrases/song.json \
+  /sdcard/Android/data/dev.zmdld11.guitardojo/files/phrases/song.json
+```
+
+- 格式说明见 [docs/M3-乐句库设计.md](docs/M3-乐句库设计.md)；加载时会校验小节连续性、弦品与音高一致性，失败会指出第几个音。
+- `local_phrases/` 与 `data/` 都已加入 `.gitignore`，不要提交任何转换产物或参考书扫描件。
 
 ## 版权声明
 

@@ -1,0 +1,501 @@
+{
+  "schemaVersion": 1,
+  "id": "builtin.melody.first-light",
+  "title": "单音旋律 · 晨光",
+  "description": "自编 16 小节 C 大调旋律，含 hammer-on 与 pull-off。先唱准，再弹准。",
+  "difficulty": 3,
+  "tags": [
+    "旋律",
+    "连奏"
+  ],
+  "origin": "builtin",
+  "tuning": [
+    40,
+    45,
+    50,
+    55,
+    59,
+    64
+  ],
+  "capo": 0,
+  "ppq": 960,
+  "bars": [
+    {
+      "index": 0,
+      "startTick": 0,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    },
+    {
+      "index": 1,
+      "startTick": 3840,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    },
+    {
+      "index": 2,
+      "startTick": 7680,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    },
+    {
+      "index": 3,
+      "startTick": 11520,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    },
+    {
+      "index": 4,
+      "startTick": 15360,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    },
+    {
+      "index": 5,
+      "startTick": 19200,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    },
+    {
+      "index": 6,
+      "startTick": 23040,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    },
+    {
+      "index": 7,
+      "startTick": 26880,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    },
+    {
+      "index": 8,
+      "startTick": 30720,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    },
+    {
+      "index": 9,
+      "startTick": 34560,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    },
+    {
+      "index": 10,
+      "startTick": 38400,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    },
+    {
+      "index": 11,
+      "startTick": 42240,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    },
+    {
+      "index": 12,
+      "startTick": 46080,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    },
+    {
+      "index": 13,
+      "startTick": 49920,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    },
+    {
+      "index": 14,
+      "startTick": 53760,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    },
+    {
+      "index": 15,
+      "startTick": 57600,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 72
+    }
+  ],
+  "notes": [
+    {
+      "bar": 0,
+      "tick": 0,
+      "durationTicks": 1920,
+      "midi": 60,
+      "string": 2,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 1920,
+      "durationTicks": 1920,
+      "midi": 62,
+      "string": 2,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 3840,
+      "durationTicks": 1920,
+      "midi": 64,
+      "string": 2,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 5760,
+      "durationTicks": 1920,
+      "midi": 67,
+      "string": 1,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 7680,
+      "durationTicks": 2880,
+      "midi": 69,
+      "string": 1,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 10560,
+      "durationTicks": 960,
+      "midi": 67,
+      "string": 1,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 3,
+      "tick": 11520,
+      "durationTicks": 3840,
+      "midi": 64,
+      "string": 2,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 4,
+      "tick": 15360,
+      "durationTicks": 1920,
+      "midi": 62,
+      "string": 2,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 4,
+      "tick": 17280,
+      "durationTicks": 1920,
+      "midi": 64,
+      "string": 2,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 5,
+      "tick": 19200,
+      "durationTicks": 1920,
+      "midi": 67,
+      "string": 1,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 5,
+      "tick": 21120,
+      "durationTicks": 1920,
+      "midi": 69,
+      "string": 1,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 6,
+      "tick": 23040,
+      "durationTicks": 2880,
+      "midi": 72,
+      "string": 1,
+      "fret": 8,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 6,
+      "tick": 25920,
+      "durationTicks": 960,
+      "midi": 69,
+      "string": 1,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 7,
+      "tick": 26880,
+      "durationTicks": 3840,
+      "midi": 67,
+      "string": 1,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 8,
+      "tick": 30720,
+      "durationTicks": 960,
+      "midi": 64,
+      "string": 2,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 8,
+      "tick": 31680,
+      "durationTicks": 960,
+      "midi": 67,
+      "string": 1,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 8,
+      "tick": 32640,
+      "durationTicks": 960,
+      "midi": 69,
+      "string": 1,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 8,
+      "tick": 33600,
+      "durationTicks": 960,
+      "midi": 67,
+      "string": 1,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 9,
+      "tick": 34560,
+      "durationTicks": 1920,
+      "midi": 64,
+      "string": 2,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 9,
+      "tick": 36480,
+      "durationTicks": 1920,
+      "midi": 62,
+      "string": 2,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 10,
+      "tick": 38400,
+      "durationTicks": 2880,
+      "midi": 60,
+      "string": 2,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 10,
+      "tick": 41280,
+      "durationTicks": 960,
+      "midi": 62,
+      "string": 2,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 11,
+      "tick": 42240,
+      "durationTicks": 3840,
+      "midi": 64,
+      "string": 2,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 12,
+      "tick": 46080,
+      "durationTicks": 1920,
+      "midi": 67,
+      "string": 1,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 12,
+      "tick": 48000,
+      "durationTicks": 1920,
+      "midi": 69,
+      "string": 1,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 13,
+      "tick": 49920,
+      "durationTicks": 1920,
+      "midi": 69,
+      "string": 1,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 13,
+      "tick": 51840,
+      "durationTicks": 960,
+      "midi": 71,
+      "string": 1,
+      "fret": 7,
+      "velocity": 0.8,
+      "techniques": [
+        "hammer_on"
+      ]
+    },
+    {
+      "bar": 13,
+      "tick": 52800,
+      "durationTicks": 960,
+      "midi": 72,
+      "string": 1,
+      "fret": 8,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 14,
+      "tick": 53760,
+      "durationTicks": 1920,
+      "midi": 69,
+      "string": 1,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 14,
+      "tick": 55680,
+      "durationTicks": 1920,
+      "midi": 67,
+      "string": 1,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": [
+        "pull_off"
+      ]
+    },
+    {
+      "bar": 15,
+      "tick": 57600,
+      "durationTicks": 3840,
+      "midi": 72,
+      "string": 1,
+      "fret": 8,
+      "velocity": 0.8,
+      "techniques": []
+    }
+  ],
+  "trackName": "Guitar"
+}

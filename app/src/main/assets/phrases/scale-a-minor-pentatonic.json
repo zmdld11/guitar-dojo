@@ -1,0 +1,287 @@
+{
+  "schemaVersion": 1,
+  "id": "builtin.scale.a-minor-pentatonic",
+  "title": "A 小调五声 · 第一把位",
+  "description": "5 品把位的 Box 1。五声音阶没有半音，先求稳，再求快。",
+  "difficulty": 2,
+  "tags": [
+    "音阶",
+    "五声"
+  ],
+  "origin": "builtin",
+  "tuning": [
+    40,
+    45,
+    50,
+    55,
+    59,
+    64
+  ],
+  "capo": 0,
+  "ppq": 960,
+  "bars": [
+    {
+      "index": 0,
+      "startTick": 0,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 92
+    },
+    {
+      "index": 1,
+      "startTick": 3840,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 92
+    },
+    {
+      "index": 2,
+      "startTick": 7680,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 92
+    }
+  ],
+  "notes": [
+    {
+      "bar": 0,
+      "tick": 0,
+      "durationTicks": 480,
+      "midi": 45,
+      "string": 6,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 480,
+      "durationTicks": 480,
+      "midi": 48,
+      "string": 6,
+      "fret": 8,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 960,
+      "durationTicks": 480,
+      "midi": 50,
+      "string": 5,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 1440,
+      "durationTicks": 480,
+      "midi": 52,
+      "string": 5,
+      "fret": 7,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 1920,
+      "durationTicks": 480,
+      "midi": 55,
+      "string": 4,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 2400,
+      "durationTicks": 480,
+      "midi": 57,
+      "string": 4,
+      "fret": 7,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 2880,
+      "durationTicks": 480,
+      "midi": 60,
+      "string": 3,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 3360,
+      "durationTicks": 480,
+      "midi": 62,
+      "string": 3,
+      "fret": 7,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 3840,
+      "durationTicks": 480,
+      "midi": 64,
+      "string": 2,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 4320,
+      "durationTicks": 480,
+      "midi": 67,
+      "string": 2,
+      "fret": 8,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 4800,
+      "durationTicks": 480,
+      "midi": 69,
+      "string": 1,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 5280,
+      "durationTicks": 480,
+      "midi": 72,
+      "string": 1,
+      "fret": 8,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 5760,
+      "durationTicks": 480,
+      "midi": 69,
+      "string": 1,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 6240,
+      "durationTicks": 480,
+      "midi": 67,
+      "string": 2,
+      "fret": 8,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 6720,
+      "durationTicks": 480,
+      "midi": 64,
+      "string": 2,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 7200,
+      "durationTicks": 480,
+      "midi": 62,
+      "string": 3,
+      "fret": 7,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 7680,
+      "durationTicks": 480,
+      "midi": 60,
+      "string": 3,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 8160,
+      "durationTicks": 480,
+      "midi": 57,
+      "string": 4,
+      "fret": 7,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 8640,
+      "durationTicks": 480,
+      "midi": 55,
+      "string": 4,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 9120,
+      "durationTicks": 480,
+      "midi": 52,
+      "string": 5,
+      "fret": 7,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 9600,
+      "durationTicks": 480,
+      "midi": 50,
+      "string": 5,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 10080,
+      "durationTicks": 480,
+      "midi": 48,
+      "string": 6,
+      "fret": 8,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 10560,
+      "durationTicks": 480,
+      "midi": 45,
+      "string": 6,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    }
+  ],
+  "trackName": "Guitar"
+}

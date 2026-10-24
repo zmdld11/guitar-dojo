@@ -17,11 +17,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import dev.zmdld11.guitardojo.navigation.TopLevelDestination
+import dev.zmdld11.guitardojo.ui.screens.PhrasePlayerScreen
 import dev.zmdld11.guitardojo.ui.screens.PhrasesScreen
 import dev.zmdld11.guitardojo.ui.screens.ProfileScreen
 import dev.zmdld11.guitardojo.ui.screens.TodayScreen
@@ -34,6 +37,9 @@ private const val PAGE_SLIDE_MILLIS = 240
 
 private const val METRONOME_ROUTE = "metronome"
 private const val TUNER_ROUTE = "tuner"
+private const val PHRASE_ROUTE = "phrase/{phraseId}"
+
+private fun phraseRoute(phraseId: String): String = "phrase/$phraseId"
 
 @Composable
 fun GuitarDojoApp() {
@@ -79,13 +85,25 @@ fun GuitarDojoApp() {
                     onOpenTuner = { navController.navigate(TUNER_ROUTE) },
                 )
             }
-            composable(TopLevelDestination.PHRASES.route) { PhrasesScreen() }
+            composable(TopLevelDestination.PHRASES.route) {
+                PhrasesScreen(onOpenPhrase = { phraseId -> navController.navigate(phraseRoute(phraseId)) })
+            }
             composable(TopLevelDestination.PROFILE.route) { ProfileScreen() }
             composable(METRONOME_ROUTE) {
                 MetronomeScreen(onBack = { navController.popBackStack() })
             }
             composable(TUNER_ROUTE) {
                 TunerScreen(onBack = { navController.popBackStack() })
+            }
+            composable(
+                route = PHRASE_ROUTE,
+                arguments = listOf(navArgument("phraseId") { type = NavType.StringType }),
+            ) { entry ->
+                val phraseId = entry.arguments?.getString("phraseId").orEmpty()
+                PhrasePlayerScreen(
+                    phraseId = phraseId,
+                    onBack = { navController.popBackStack() },
+                )
             }
         }
     }

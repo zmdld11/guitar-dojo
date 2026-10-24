@@ -39,6 +39,9 @@ jobs:
       - name: Unit tests
         run: ./gradlew test --console=plain
 
+      - name: Built-in phrases up to date
+        run: python3 tools/build_builtin_phrases.py --check
+
       - name: Assemble debug APK
         run: ./gradlew assembleDebug --console=plain
 

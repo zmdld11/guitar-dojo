@@ -12,8 +12,8 @@ android {
         applicationId = "dev.zmdld11.guitardojo"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.2.0"
+        versionCode = 4
+        versionName = "0.3.0"
         vectorDrawables { useSupportLibrary = true }
     }
 
@@ -50,6 +50,7 @@ android {
 
 dependencies {
     implementation(project(":core:audio"))
+    implementation(project(":core:phrase"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

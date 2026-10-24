@@ -1,0 +1,418 @@
+{
+  "schemaVersion": 1,
+  "id": "builtin.chromatic.triplet",
+  "title": "爬格子 · 三连音",
+  "description": "每弦三连音 1-2-3，上下行连成一条线。三连音要均匀，不要赶最后一拍。",
+  "difficulty": 3,
+  "tags": [
+    "热身",
+    "爬格子",
+    "三连音"
+  ],
+  "origin": "builtin",
+  "tuning": [
+    40,
+    45,
+    50,
+    55,
+    59,
+    64
+  ],
+  "capo": 0,
+  "ppq": 960,
+  "bars": [
+    {
+      "index": 0,
+      "startTick": 0,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 100
+    },
+    {
+      "index": 1,
+      "startTick": 3840,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 100
+    },
+    {
+      "index": 2,
+      "startTick": 7680,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 100
+    }
+  ],
+  "notes": [
+    {
+      "bar": 0,
+      "tick": 0,
+      "durationTicks": 320,
+      "midi": 41,
+      "string": 6,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 320,
+      "durationTicks": 320,
+      "midi": 42,
+      "string": 6,
+      "fret": 2,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 640,
+      "durationTicks": 320,
+      "midi": 43,
+      "string": 6,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 960,
+      "durationTicks": 320,
+      "midi": 46,
+      "string": 5,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 1280,
+      "durationTicks": 320,
+      "midi": 47,
+      "string": 5,
+      "fret": 2,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 1600,
+      "durationTicks": 320,
+      "midi": 48,
+      "string": 5,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 1920,
+      "durationTicks": 320,
+      "midi": 51,
+      "string": 4,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 2240,
+      "durationTicks": 320,
+      "midi": 52,
+      "string": 4,
+      "fret": 2,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 2560,
+      "durationTicks": 320,
+      "midi": 53,
+      "string": 4,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 2880,
+      "durationTicks": 320,
+      "midi": 56,
+      "string": 3,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 3200,
+      "durationTicks": 320,
+      "midi": 57,
+      "string": 3,
+      "fret": 2,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 3520,
+      "durationTicks": 320,
+      "midi": 58,
+      "string": 3,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 3840,
+      "durationTicks": 320,
+      "midi": 60,
+      "string": 2,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 4160,
+      "durationTicks": 320,
+      "midi": 61,
+      "string": 2,
+      "fret": 2,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 4480,
+      "durationTicks": 320,
+      "midi": 62,
+      "string": 2,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 4800,
+      "durationTicks": 320,
+      "midi": 65,
+      "string": 1,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 5120,
+      "durationTicks": 320,
+      "midi": 66,
+      "string": 1,
+      "fret": 2,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 5440,
+      "durationTicks": 320,
+      "midi": 67,
+      "string": 1,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 5760,
+      "durationTicks": 320,
+      "midi": 67,
+      "string": 1,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 6080,
+      "durationTicks": 320,
+      "midi": 66,
+      "string": 1,
+      "fret": 2,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 6400,
+      "durationTicks": 320,
+      "midi": 65,
+      "string": 1,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 6720,
+      "durationTicks": 320,
+      "midi": 62,
+      "string": 2,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 7040,
+      "durationTicks": 320,
+      "midi": 61,
+      "string": 2,
+      "fret": 2,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 7360,
+      "durationTicks": 320,
+      "midi": 60,
+      "string": 2,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 7680,
+      "durationTicks": 320,
+      "midi": 58,
+      "string": 3,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 8000,
+      "durationTicks": 320,
+      "midi": 57,
+      "string": 3,
+      "fret": 2,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 8320,
+      "durationTicks": 320,
+      "midi": 56,
+      "string": 3,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 8640,
+      "durationTicks": 320,
+      "midi": 53,
+      "string": 4,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 8960,
+      "durationTicks": 320,
+      "midi": 52,
+      "string": 4,
+      "fret": 2,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 9280,
+      "durationTicks": 320,
+      "midi": 51,
+      "string": 4,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 9600,
+      "durationTicks": 320,
+      "midi": 48,
+      "string": 5,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 9920,
+      "durationTicks": 320,
+      "midi": 47,
+      "string": 5,
+      "fret": 2,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 10240,
+      "durationTicks": 320,
+      "midi": 46,
+      "string": 5,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 10560,
+      "durationTicks": 320,
+      "midi": 43,
+      "string": 6,
+      "fret": 3,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 10880,
+      "durationTicks": 320,
+      "midi": 42,
+      "string": 6,
+      "fret": 2,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 2,
+      "tick": 11200,
+      "durationTicks": 320,
+      "midi": 41,
+      "string": 6,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    }
+  ],
+  "trackName": "Guitar"
+}
