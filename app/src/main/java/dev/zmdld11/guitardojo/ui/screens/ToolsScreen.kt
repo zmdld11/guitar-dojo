@@ -32,6 +32,7 @@ import dev.zmdld11.guitardojo.ui.components.MilestoneNote
 @Composable
 fun ToolsScreen(
     onOpenMetronome: () -> Unit,
+    onOpenTuner: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val metronomePlaying by MetronomeHolder.isPlaying.collectAsStateWithLifecycle()
@@ -67,12 +68,12 @@ fun ToolsScreen(
         ToolCard(
             title = "调音器 / 拾音器",
             description = "麦克风实时音高检测，六弦逐弦调音，也可当扒谱拾音用",
-            milestone = "M2",
+            milestone = null,
             icon = Icons.Outlined.GraphicEq,
-            onClick = null,
+            onClick = onOpenTuner,
         )
         Spacer(Modifier.height(16.dp))
-        MilestoneNote("调音器排在 M2，针对电吉他泛音误判单独调参；节拍器已可用。")
+        MilestoneNote("调音器优先用 UNPROCESSED 音源并做了中值平滑；乐句库排在 M3。")
         Spacer(Modifier.height(24.dp))
     }
 }

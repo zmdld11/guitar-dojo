@@ -18,3 +18,9 @@ style:
     active: false
   MaxLineLength:
     maxLineLength: 140
+  # 音高检测等算法用卫语句提前返回比强行单出口更清楚
+  ReturnCount:
+    max: 6
+  LoopWithTooManyJumpStatements:
+    maxJumpCount: 2
+

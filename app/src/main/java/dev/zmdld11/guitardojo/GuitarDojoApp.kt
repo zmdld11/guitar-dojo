@@ -27,11 +27,13 @@ import dev.zmdld11.guitardojo.ui.screens.ProfileScreen
 import dev.zmdld11.guitardojo.ui.screens.TodayScreen
 import dev.zmdld11.guitardojo.ui.screens.ToolsScreen
 import dev.zmdld11.guitardojo.ui.screens.metronome.MetronomeScreen
+import dev.zmdld11.guitardojo.ui.screens.tuner.TunerScreen
 
 private const val PAGE_FADE_MILLIS = 180
 private const val PAGE_SLIDE_MILLIS = 240
 
 private const val METRONOME_ROUTE = "metronome"
+private const val TUNER_ROUTE = "tuner"
 
 @Composable
 fun GuitarDojoApp() {
@@ -72,12 +74,18 @@ fun GuitarDojoApp() {
         ) {
             composable(TopLevelDestination.TODAY.route) { TodayScreen() }
             composable(TopLevelDestination.TOOLS.route) {
-                ToolsScreen(onOpenMetronome = { navController.navigate(METRONOME_ROUTE) })
+                ToolsScreen(
+                    onOpenMetronome = { navController.navigate(METRONOME_ROUTE) },
+                    onOpenTuner = { navController.navigate(TUNER_ROUTE) },
+                )
             }
             composable(TopLevelDestination.PHRASES.route) { PhrasesScreen() }
             composable(TopLevelDestination.PROFILE.route) { ProfileScreen() }
             composable(METRONOME_ROUTE) {
                 MetronomeScreen(onBack = { navController.popBackStack() })
+            }
+            composable(TUNER_ROUTE) {
+                TunerScreen(onBack = { navController.popBackStack() })
             }
         }
     }

@@ -5,6 +5,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 调音器 / 拾音器需要麦克风 -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <uses-feature
+        android:name="android.hardware.microphone"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
