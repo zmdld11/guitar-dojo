@@ -42,7 +42,8 @@
 
 ## 4. 里程碑与 issue 拆分
 
-> issue 标题前缀即 Conventional Commits 类型。每个 issue 开工时按 dev-workflow 规范补全：背景、实现规划、验收标准；完成后写小结再关闭。#号下为建仓后拟建的 issue 顺序。
+> issue 标题前缀即 Conventional Commits 类型。每个 issue 开工时按 dev-workflow 规范补全：背景、实现规划、验收标准；完成后写小结再关闭。
+> 下列 `#1`–`#35` 为规划中的 issue 编号与顺序，**尚未在 GitHub 上创建**；正式建 issue 时编号以 GitHub 分配为准，本文件回填实际编号。
 
 ### M0 工程骨架（v0.0.x）
 
