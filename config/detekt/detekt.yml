@@ -1,0 +1,20 @@
+build:
+  maxIssues: 0
+
+complexity:
+  LongParameterList:
+    active: false
+  # Compose 的 @Composable 函数天然偏长，长度限制对它不适用
+  LongMethod:
+    ignoreAnnotated: ['Composable']
+
+naming:
+  # Compose 约定 Composable 函数使用大驼峰
+  FunctionNaming:
+    ignoreAnnotated: ['Composable']
+
+style:
+  MagicNumber:
+    active: false
+  MaxLineLength:
+    maxLineLength: 140

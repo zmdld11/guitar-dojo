@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- 拨片：吉他道场的标识 -->
+    <path
+        android:fillColor="#2E2A26"
+        android:pathData="M38,32 L70,32 C73.5,32 75.5,35.5 74,38.5 L58.5,78 C57,81.5 51,81.5 49.5,78 L34,38.5 C32.5,35.5 34.5,32 38,32 Z" />
+    <path
+        android:fillColor="#F2E4D8"
+        android:pathData="M46,41 L62,41 L54,59 Z" />
+</vector>

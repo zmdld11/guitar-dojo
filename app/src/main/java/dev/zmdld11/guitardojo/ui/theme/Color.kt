@@ -1,0 +1,41 @@
+package dev.zmdld11.guitardojo.ui.theme
+
+import androidx.compose.ui.graphics.Color
+
+// 浅色：原木、纸白与暖墨，取吉他木料与谱纸的色调
+internal val LightPrimary = Color(0xFF8C4A2F)
+internal val LightOnPrimary = Color(0xFFFFFFFF)
+internal val LightPrimaryContainer = Color(0xFFFFDBCB)
+internal val LightOnPrimaryContainer = Color(0xFF351000)
+internal val LightSecondary = Color(0xFF54634F)
+internal val LightOnSecondary = Color(0xFFFFFFFF)
+internal val LightSecondaryContainer = Color(0xFFD7E8CF)
+internal val LightOnSecondaryContainer = Color(0xFF121F10)
+internal val LightTertiary = Color(0xFF7A5900)
+internal val LightOnTertiary = Color(0xFFFFFFFF)
+internal val LightTertiaryContainer = Color(0xFFFFDF9B)
+internal val LightOnTertiaryContainer = Color(0xFF261900)
+internal val LightBackground = Color(0xFFFFF8F5)
+internal val LightOnBackground = Color(0xFF221A17)
+internal val LightSurfaceVariant = Color(0xFFF4DED3)
+internal val LightOnSurfaceVariant = Color(0xFF52443D)
+internal val LightOutline = Color(0xFF85736B)
+
+// 深色：夜练模式的低亮度暖调，避免纯黑刺眼
+internal val DarkPrimary = Color(0xFFFFB693)
+internal val DarkOnPrimary = Color(0xFF53200B)
+internal val DarkPrimaryContainer = Color(0xFF74331A)
+internal val DarkOnPrimaryContainer = Color(0xFFFFDBCB)
+internal val DarkSecondary = Color(0xFFBBCBB4)
+internal val DarkOnSecondary = Color(0xFF263423)
+internal val DarkSecondaryContainer = Color(0xFF3C4B38)
+internal val DarkOnSecondaryContainer = Color(0xFFD7E8CF)
+internal val DarkTertiary = Color(0xFFF2BF48)
+internal val DarkOnTertiary = Color(0xFF412D00)
+internal val DarkTertiaryContainer = Color(0xFF5D4200)
+internal val DarkOnTertiaryContainer = Color(0xFFFFDF9B)
+internal val DarkBackground = Color(0xFF1A120E)
+internal val DarkOnBackground = Color(0xFFF0DFD7)
+internal val DarkSurfaceVariant = Color(0xFF52443D)
+internal val DarkOnSurfaceVariant = Color(0xFFD7C2B8)
+internal val DarkOutline = Color(0xFF9F8D84)
