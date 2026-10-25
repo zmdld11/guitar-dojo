@@ -103,6 +103,9 @@ class PracticeMixer(
         }
 
         voices.forEach { it.render(floatBuffer, out.size) }
+        if (timbre.mixGain != 1f) {
+            for (index in 0 until out.size) floatBuffer[index] *= timbre.mixGain
+        }
         effects.process(floatBuffer, out.size)
         // 节拍器走在效果链之后，保持干脆，也不会被混响拖出尾巴
         clickVoices.forEach { it.render(floatBuffer, out.size) }

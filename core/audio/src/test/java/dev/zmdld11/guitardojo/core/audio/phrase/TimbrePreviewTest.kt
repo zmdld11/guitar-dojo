@@ -9,11 +9,23 @@ import java.io.BufferedOutputStream
 import java.io.DataOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.math.abs
+import kotlin.math.log10
+import kotlin.math.sqrt
 
 class TimbrePreviewTest {
     @Test
     fun renderPreviews() {
-        renderAll(sampleRate = 44_100, seconds = 8.0, directory = "build/timbre", phrase = previewPhrase())
+        val rendered =
+            renderAll(sampleRate = 44_100, seconds = 8.0, directory = "build/timbre", phrase = previewPhrase())
+        val reference = rms(rendered.getValue(PhraseTimbre.CLEAN_GUITAR))
+        rendered.forEach { (timbre, samples) ->
+            val deviationDb = 20.0 * log10(rms(samples) / reference)
+            assertTrue(
+                "${timbre.label} 响度偏差 ${"%.1f".format(deviationDb)} dB",
+                abs(deviationDb) <= LOUDNESS_TOLERANCE_DB,
+            )
+        }
     }
 
     /** 供内嵌试听页使用的短片段：22.05kHz、2.5 秒，控制文件体积。 */
@@ -27,10 +39,11 @@ class TimbrePreviewTest {
         seconds: Double,
         directory: String,
         phrase: Phrase,
-    ) {
+    ): Map<PhraseTimbre, ShortArray> {
         val plan = PhraseScheduler.plan(phrase, sampleRate, clickEnabled = false)
         val outputDir = File(directory).apply { mkdirs() }
         println("timbre dir: ${outputDir.absolutePath}")
+        val rendered = LinkedHashMap<PhraseTimbre, ShortArray>()
 
         PhraseTimbre.entries.forEach { timbre ->
             val mixer = PracticeMixer(sampleRate, timbre)
@@ -50,7 +63,19 @@ class TimbrePreviewTest {
             writeWav(file, samples, sampleRate)
             assertTrue("${timbre.label} 没有输出声音", samples.any { it.toInt() != 0 })
             println("wrote ${file.name} ${file.length()} bytes")
+            rendered[timbre] = samples
         }
+        return rendered
+    }
+
+    private fun rms(samples: ShortArray): Double {
+        var sum = 0.0
+        samples.forEach { sample -> sum += sample.toDouble() * sample }
+        return sqrt(sum / samples.size) / Short.MAX_VALUE
+    }
+
+    private companion object {
+        const val LOUDNESS_TOLERANCE_DB = 3.0
     }
 
     private fun shortPhrase(): Phrase {

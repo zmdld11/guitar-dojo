@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.PlayArrow
@@ -214,7 +215,15 @@ private fun ControlPanel(
                 )
             }
             Spacer(Modifier.height(4.dp))
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            val timbreIndex = PhraseTimbre.entries.indexOf(state.timbre)
+            val timbreListState =
+                rememberLazyListState(
+                    initialFirstVisibleItemIndex = (timbreIndex - 1).coerceAtLeast(0),
+                )
+            LazyRow(
+                state = timbreListState,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
                 items(PhraseTimbre.entries) { timbre ->
                     FilterChip(
                         selected = state.timbre == timbre,
