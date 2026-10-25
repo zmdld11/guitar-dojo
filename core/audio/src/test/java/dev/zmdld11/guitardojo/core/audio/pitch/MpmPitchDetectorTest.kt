@@ -77,6 +77,21 @@ class MpmPitchDetectorTest {
     }
 
     @Test
+    fun `伪低八度候选会被纠正回真实基频`() {
+        val samples = Signals.tone(328.0)
+        val corrected = detector.rejectSubharmonic(samples, 164.0)
+        assertEquals(328.0, corrected, 1.0)
+    }
+
+    @Test
+    fun `真实低音不会被二次谐波抬高八度`() {
+        val fundamental = 164.81
+        val samples = Signals.tone(fundamental, harmonics = listOf(0.4, 1.0, 0.6, 0.3))
+        val corrected = detector.rejectSubharmonic(samples, fundamental)
+        assertEquals(fundamental, corrected, 1.0)
+    }
+
+    @Test
     fun `频率偏差在 1 音分以内的精度`() {
         val target = 440.0
         val result = detector.detect(Signals.tone(target))!!
