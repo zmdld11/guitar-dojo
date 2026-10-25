@@ -8,22 +8,37 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import dev.zmdld11.guitardojo.ui.components.MilestoneNote
+import dev.zmdld11.guitardojo.data.cards.BuiltInCards
+import dev.zmdld11.guitardojo.data.cards.CardDeck
+import dev.zmdld11.guitardojo.data.cards.CardScheduler
+import dev.zmdld11.guitardojo.ui.screens.cards.rememberCardProgress
+import java.time.LocalDate
 
 @Composable
-fun TodayScreen(modifier: Modifier = Modifier) {
+fun TodayScreen(
+    onOpenCards: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier =
             modifier
@@ -47,9 +62,62 @@ fun TodayScreen(modifier: Modifier = Modifier) {
         TodaySessionCard()
         Spacer(Modifier.height(16.dp))
         StatsRow()
-        Spacer(Modifier.height(16.dp))
-        MilestoneNote("训练向导与计划引擎排在 M4，考核系统排在 M5。接入后这里显示当天的具体任务与进度。")
+        Spacer(Modifier.height(20.dp))
+        DailyCardSection(onOpenCards = onOpenCards)
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun DailyCardSection(onOpenCards: () -> Unit) {
+    val progress = rememberCardProgress()
+    val cards = remember { BuiltInCards.byDeck(CardDeck.THEORY) }
+    val today = remember { LocalDate.now().toEpochDay() }
+    val scheduler = remember { CardScheduler() }
+    val card = remember(progress, cards, today) { scheduler.daily(cards, progress, today) } ?: return
+
+    OutlinedCard(
+        onClick = onOpenCards,
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+    ) {
+        Row(
+            modifier = Modifier.padding(18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                color = MaterialTheme.colorScheme.secondaryContainer,
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.MenuBook,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(10.dp).size(24.dp),
+                )
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "今日一卡",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = card.prompt,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = "看看",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
     }
 }
 
@@ -71,19 +139,13 @@ private fun TodaySessionCard(modifier: Modifier = Modifier) {
             )
             Spacer(Modifier.height(10.dp))
             Text(
-                text = "还没开始",
+                text = "开始今天的训练吧 🎸",
                 style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = "调音、设备调试、今日乐句、考核、保养收尾——走完一遍才算一天。",
-                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
             Spacer(Modifier.height(18.dp))
             Button(onClick = {}, enabled = false) {
-                Text("开始今日训练")
+                Text("开始训练")
             }
         }
     }

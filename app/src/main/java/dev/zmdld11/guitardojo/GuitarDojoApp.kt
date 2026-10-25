@@ -23,12 +23,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import dev.zmdld11.guitardojo.data.cards.CardDeck
 import dev.zmdld11.guitardojo.navigation.TopLevelDestination
 import dev.zmdld11.guitardojo.ui.screens.PhrasePlayerScreen
 import dev.zmdld11.guitardojo.ui.screens.PhrasesScreen
 import dev.zmdld11.guitardojo.ui.screens.ProfileScreen
 import dev.zmdld11.guitardojo.ui.screens.TodayScreen
 import dev.zmdld11.guitardojo.ui.screens.ToolsScreen
+import dev.zmdld11.guitardojo.ui.screens.cards.CardsScreen
 import dev.zmdld11.guitardojo.ui.screens.metronome.MetronomeScreen
 import dev.zmdld11.guitardojo.ui.screens.tuner.TunerScreen
 
@@ -38,8 +40,11 @@ private const val PAGE_SLIDE_MILLIS = 240
 private const val METRONOME_ROUTE = "metronome"
 private const val TUNER_ROUTE = "tuner"
 private const val PHRASE_ROUTE = "phrase/{phraseId}"
+private const val CARDS_ROUTE = "cards/{deckId}"
 
 private fun phraseRoute(phraseId: String): String = "phrase/$phraseId"
+
+private fun cardsRoute(deck: CardDeck): String = "cards/${deck.id}"
 
 @Composable
 fun GuitarDojoApp() {
@@ -78,11 +83,14 @@ fun GuitarDojoApp() {
                     }
             },
         ) {
-            composable(TopLevelDestination.TODAY.route) { TodayScreen() }
+            composable(TopLevelDestination.TODAY.route) {
+                TodayScreen(onOpenCards = { navController.navigate(cardsRoute(CardDeck.THEORY)) })
+            }
             composable(TopLevelDestination.TOOLS.route) {
                 ToolsScreen(
                     onOpenMetronome = { navController.navigate(METRONOME_ROUTE) },
                     onOpenTuner = { navController.navigate(TUNER_ROUTE) },
+                    onOpenCards = { deck -> navController.navigate(cardsRoute(deck)) },
                 )
             }
             composable(TopLevelDestination.PHRASES.route) {
@@ -94,6 +102,18 @@ fun GuitarDojoApp() {
             }
             composable(TUNER_ROUTE) {
                 TunerScreen(onBack = { navController.popBackStack() })
+            }
+            composable(
+                route = CARDS_ROUTE,
+                arguments = listOf(navArgument("deckId") { type = NavType.StringType }),
+            ) { entry ->
+                val deck =
+                    CardDeck.fromId(entry.arguments?.getString("deckId").orEmpty())
+                        ?: CardDeck.THEORY
+                CardsScreen(
+                    deck = deck,
+                    onBack = { navController.popBackStack() },
+                )
             }
             composable(
                 route = PHRASE_ROUTE,

@@ -25,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import dev.zmdld11.guitardojo.ui.components.MilestoneNote
 
 @Composable
 fun ProfileScreen(modifier: Modifier = Modifier) {
@@ -44,7 +43,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
         )
         Spacer(Modifier.height(6.dp))
         Text(
-            text = "设备和偏好都放这儿。",
+            text = "设备、外观、版本。",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -69,12 +68,10 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                 SettingsRow(
                     icon = Icons.Outlined.Info,
                     title = "关于",
-                    subtitle = "吉他道场 v0.0.1",
+                    subtitle = "吉他道场 v0.3.0",
                 )
             }
         }
-        Spacer(Modifier.height(16.dp))
-        MilestoneNote("设备配置会在 M4 与每日设备调试卡片打通；设置项目前为占位展示。")
         Spacer(Modifier.height(24.dp))
     }
 }

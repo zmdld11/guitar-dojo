@@ -1,0 +1,103 @@
+package dev.zmdld11.guitardojo.data.cards
+
+internal object PracticeCards {
+    val cards: List<TrainingCard> =
+        listOf(
+            TrainingCard(
+                id = "practice.session-length",
+                deck = CardDeck.PRACTICE,
+                title = "一次练多久",
+                prompt = "一次练多久比较合适？",
+                answer = "15–20 分钟；最多切成 5 分钟一块，块间休息 1 分钟。",
+                detail = "周末精力好可以加到 25–30 分钟，但不要练到手指发僵。",
+            ),
+            TrainingCard(
+                id = "practice.one-goal",
+                deck = CardDeck.PRACTICE,
+                title = "一次一个目标",
+                prompt = "每次练习应该设几个目标？",
+                answer = "一个。",
+                detail = "例如「今天只把第 3 小节在 70 BPM 弹干净」。",
+            ),
+            TrainingCard(
+                id = "practice.slow-and-fast",
+                deck = CardDeck.PRACTICE,
+                title = "慢练与快练",
+                prompt = "慢速练和原速练，应该选哪个？",
+                answer = "两个都要：慢速练准确，原速做 2–4 个音的短爆发。",
+                detail = "慢练不会自动变成快，速度要单独练。",
+            ),
+            TrainingCard(
+                id = "practice.speed-up",
+                deck = CardDeck.PRACTICE,
+                title = "什么时候提速",
+                prompt = "什么时候可以提速？",
+                answer = "同一速度连续 3 次干净通过，再 +5 BPM。",
+                detail = "有一次错音就留在原速，不带着错误加速。",
+            ),
+            TrainingCard(
+                id = "practice.failure-fix",
+                deck = CardDeck.PRACTICE,
+                title = "卡住了怎么办",
+                prompt = "连续两次弹不好，怎么办？",
+                answer = "降 10 BPM；还不行就缩到 1–2 小节。",
+                detail = "连续三个训练日都卡住，换同类型的句子或拆成更小的块。",
+            ),
+            TrainingCard(
+                id = "practice.chunking",
+                deck = CardDeck.PRACTICE,
+                title = "把句子切小",
+                prompt = "句子太长练不下来，怎么切？",
+                answer = "先练 1–2 小节，或 3–7 个音，再向前拼。",
+                detail = "从出错的地方前后各带一点上下文，不要每次都从头。",
+            ),
+            TrainingCard(
+                id = "practice.full-run-last",
+                deck = CardDeck.PRACTICE,
+                title = "完整跑放最后",
+                prompt = "完整跑一遍应该放在什么时候？",
+                answer = "练习的最后。",
+                detail = "前面先修难点；完整跑只用来检查。",
+            ),
+            TrainingCard(
+                id = "practice.self-assess",
+                deck = CardDeck.PRACTICE,
+                title = "先自评",
+                prompt = "练习完先看评分，还是先自评？",
+                answer = "先自评「轻松 / 刚好 / 吃力」，再看反馈。",
+                detail = "自评能训练耳朵和身体感觉，也能校准机器评分。",
+            ),
+            TrainingCard(
+                id = "practice.record",
+                deck = CardDeck.PRACTICE,
+                title = "录音听什么",
+                prompt = "录音回听时听什么？",
+                answer = "时值、杂音、卡顿、放松度。",
+                detail = "录 30 秒就够；先听自己的，再和示范对比。",
+            ),
+            TrainingCard(
+                id = "practice.spacing",
+                deck = CardDeck.PRACTICE,
+                title = "隔天复习",
+                prompt = "新学会的句子隔多久复习？",
+                answer = "1、3、7、14 天各复习一次。",
+                detail = "每次复习都通过，再拉到 30 天；失败就回到 1 天后。",
+            ),
+            TrainingCard(
+                id = "practice.rest",
+                deck = CardDeck.PRACTICE,
+                title = "休息",
+                prompt = "练多久要休息？",
+                answer = "20–25 分钟休息 3–5 分钟。",
+                detail = "手酸、发麻、刺痛立刻停；休息不是偷懒。",
+            ),
+            TrainingCard(
+                id = "practice.streak",
+                deck = CardDeck.PRACTICE,
+                title = "打卡看周目标",
+                prompt = "打卡应该追求连续多少天？",
+                answer = "先追求本周 4 次有效练习。",
+                detail = "漏一天不用补课，别连漏两天。",
+            ),
+        )
+}

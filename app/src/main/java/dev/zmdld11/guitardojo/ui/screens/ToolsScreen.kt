@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AutoStories
+import androidx.compose.material.icons.outlined.CleaningServices
 import androidx.compose.material.icons.outlined.GraphicEq
+import androidx.compose.material.icons.outlined.Speaker
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -21,21 +24,27 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.zmdld11.guitardojo.data.cards.BuiltInCards
+import dev.zmdld11.guitardojo.data.cards.CardDeck
+import dev.zmdld11.guitardojo.data.cards.CardProgress
 import dev.zmdld11.guitardojo.metronome.MetronomeHolder
-import dev.zmdld11.guitardojo.ui.components.MilestoneNote
+import dev.zmdld11.guitardojo.ui.screens.cards.rememberCardProgress
 
 @Composable
 fun ToolsScreen(
     onOpenMetronome: () -> Unit,
     onOpenTuner: () -> Unit,
+    onOpenCards: (CardDeck) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val metronomePlaying by MetronomeHolder.isPlaying.collectAsStateWithLifecycle()
+    val cardProgress = rememberCardProgress()
 
     Column(
         modifier =
@@ -59,7 +68,7 @@ fun ToolsScreen(
         Spacer(Modifier.height(24.dp))
         ToolCard(
             title = "节拍器",
-            description = "1-300 BPM、拍号与细分、Tap 定速、小节循环显示",
+            description = "稳住拍子。",
             milestone = if (metronomePlaying) "播放中" else null,
             icon = Icons.Outlined.Timer,
             onClick = onOpenMetronome,
@@ -67,15 +76,65 @@ fun ToolsScreen(
         Spacer(Modifier.height(12.dp))
         ToolCard(
             title = "调音器 / 拾音器",
-            description = "麦克风实时音高检测，六弦逐弦调音，也可当扒谱拾音用",
+            description = "把六根弦调准。",
             milestone = null,
             icon = Icons.Outlined.GraphicEq,
             onClick = onOpenTuner,
         )
-        Spacer(Modifier.height(16.dp))
-        MilestoneNote("调音器优先用 UNPROCESSED 音源并做了中值平滑；乐句库排在 M3。")
+        Spacer(Modifier.height(28.dp))
+        Text(
+            text = "卡片",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+        Spacer(Modifier.height(12.dp))
+        CardDeckCard(
+            deck = CardDeck.THEORY,
+            icon = Icons.Outlined.AutoStories,
+            progress = cardProgress,
+            onClick = { onOpenCards(CardDeck.THEORY) },
+        )
+        Spacer(Modifier.height(12.dp))
+        CardDeckCard(
+            deck = CardDeck.PRACTICE,
+            icon = Icons.Outlined.Timer,
+            progress = cardProgress,
+            onClick = { onOpenCards(CardDeck.PRACTICE) },
+        )
+        Spacer(Modifier.height(12.dp))
+        CardDeckCard(
+            deck = CardDeck.SETUP,
+            icon = Icons.Outlined.Speaker,
+            progress = cardProgress,
+            onClick = { onOpenCards(CardDeck.SETUP) },
+        )
+        Spacer(Modifier.height(12.dp))
+        CardDeckCard(
+            deck = CardDeck.MAINTENANCE,
+            icon = Icons.Outlined.CleaningServices,
+            progress = cardProgress,
+            onClick = { onOpenCards(CardDeck.MAINTENANCE) },
+        )
         Spacer(Modifier.height(24.dp))
     }
+}
+
+@Composable
+private fun CardDeckCard(
+    deck: CardDeck,
+    icon: ImageVector,
+    progress: Map<String, CardProgress>,
+    onClick: () -> Unit,
+) {
+    val cards = remember(deck) { BuiltInCards.byDeck(deck) }
+    val seen = cards.count { progress[it.id]?.reviewed == true }
+    ToolCard(
+        title = "${deck.title}卡片",
+        description = deck.subtitle,
+        milestone = "$seen/${cards.size}",
+        icon = icon,
+        onClick = onClick,
+    )
 }
 
 @Composable
