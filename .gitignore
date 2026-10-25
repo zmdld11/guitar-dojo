@@ -1,8 +1,9 @@
 # ── 版权红线：谱子与转换产物绝不入库 ──────────────────
 # Songsterr 抓取的 GP 谱及其衍生 JSON 只放本地，见 docs/ROADMAP.md M3
-local_phrases/
+/local_phrases/
 # 本地参考书/扫描件（如 365 日电子书）仅本机使用，禁止上传
-data/
+# 只忽略仓库根目录的 data/，不要误伤 app/src/main/java/**/data/ 源码目录
+/data/
 
 # ── 密钥与环境变量 ────────────────────────────────────
 *.env
