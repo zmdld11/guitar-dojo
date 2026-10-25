@@ -34,7 +34,7 @@ enum class PhraseTimbre(
         }
 
     companion object {
-        val DEFAULT = CLEAN_GUITAR
+        val DEFAULT = MARIMBA
 
         fun fromId(id: String?): PhraseTimbre = entries.firstOrNull { it.id == id } ?: DEFAULT
     }

@@ -28,7 +28,7 @@ data class PhrasePlayerUiState(
     /** 正在响的音在 [Phrase.notes] 中的下标。 */
     val currentNoteIndex: Int? = null,
     val timbre: PhraseTimbre = PhraseTimbre.DEFAULT,
-    val showNoteNames: Boolean = true,
+    val showNoteNames: Boolean = false,
 )
 
 class PhrasePlayerViewModel(
@@ -109,13 +109,7 @@ class PhrasePlayerViewModel(
         if (timbre == _uiState.value.timbre) return
         engine.setTimbre(timbre)
         timbrePreference.save(timbre)
-        _uiState.update { current ->
-            current.copy(
-                timbre = timbre,
-                isPlaying = engine.isRunning,
-                currentNoteIndex = if (engine.isRunning) firstNoteIndex(current) else current.currentNoteIndex,
-            )
-        }
+        _uiState.update { it.copy(timbre = timbre) }
     }
 
     fun toggleNoteNames() {

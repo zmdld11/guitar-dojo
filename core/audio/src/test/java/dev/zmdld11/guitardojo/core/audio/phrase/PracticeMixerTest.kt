@@ -58,7 +58,6 @@ class PracticeMixerTest {
         mixer.requestFadeOut()
         mixer.render(out, ArrayList())
 
-        assertTrue(mixer.isFadeFinished)
         assertEquals(0, out.last().toInt())
     }
 
@@ -74,6 +73,22 @@ class PracticeMixerTest {
         assertEquals(1, notes.size)
         assertEquals(0L, notes[0].streamFrame)
         assertEquals(7, notes[0].phraseIndex)
+    }
+
+    @Test
+    fun `热切换音色不重置播放头且新音色继续出声`() {
+        val mixer = PracticeMixer(48_000, PhraseTimbre.CLEAN_GUITAR)
+        mixer.startPlan(plan(loopFrames = 10_000, notes = listOf(Planned(0L), Planned(600L))))
+        val out = ShortArray(256)
+        mixer.render(out, ArrayList())
+
+        mixer.requestTimbre(PhraseTimbre.MARIMBA)
+        mixer.render(out, ArrayList())
+        mixer.render(out, ArrayList())
+
+        assertEquals(PhraseTimbre.MARIMBA, mixer.timbre)
+        assertEquals(768L, mixer.currentPlayhead)
+        assertTrue("切换后新音色应当继续出声", out.any { it.toInt() != 0 })
     }
 
     @Test

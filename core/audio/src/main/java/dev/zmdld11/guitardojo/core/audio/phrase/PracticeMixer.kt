@@ -9,11 +9,14 @@ import kotlin.math.tanh
  */
 class PracticeMixer(
     private val sampleRate: Int,
-    private val timbre: PhraseTimbre = PhraseTimbre.DEFAULT,
+    initialTimbre: PhraseTimbre = PhraseTimbre.DEFAULT,
 ) {
-    private val voices: Array<PhraseVoice> = Array(MAX_VOICES) { timbre.createVoice(sampleRate) }
+    /** 当前音色；热切换由 [requestTimbre] 排队，在音频线程内生效。 */
+    var timbre: PhraseTimbre = initialTimbre
+        private set
+    private var voices: Array<PhraseVoice> = Array(MAX_VOICES) { timbre.createVoice(sampleRate) }
     private val clickVoices = Array(MAX_CLICK_VOICES) { ClickVoice() }
-    private val effects = PhraseEffects(sampleRate, timbre)
+    private var effects = PhraseEffects(sampleRate, timbre)
     private val accentClick =
         toFloat(ClickSynth.generate(sampleRate, 1760.0, 45, 0.45, decayRatio = 0.18))
     private val mainClick =
@@ -29,6 +32,8 @@ class PracticeMixer(
     private var nextNoteAge = 0L
     private var lastAttackFrame = -1L
     private var strumIndex = 0
+    private var pendingTimbre: PhraseTimbre? = null
+    private var swapFadeRemaining = 0
 
     private val fade = FadeController()
 
@@ -68,7 +73,20 @@ class PracticeMixer(
         fade.request()
     }
 
-    val isFadeFinished: Boolean get() = fade.isFinished
+    /**
+     * 热切换音色：播放头、计划与游标都不动，只把音乐总线在几毫秒内淡出，
+     * 下一块换成新音色的 voice 与效果链。正在延音的尾音会被收掉，之后按原时间轴继续。
+     */
+    fun requestTimbre(newTimbre: PhraseTimbre) {
+        if (newTimbre == timbre) {
+            pendingTimbre = null
+            swapFadeRemaining = 0
+            return
+        }
+        if (newTimbre == pendingTimbre) return
+        pendingTimbre = newTimbre
+        swapFadeRemaining = SWAP_FADE_SAMPLES
+    }
 
     /**
      * 渲染一个块。返回的脉冲带绝对流帧号，交给轮询线程在播放头越过时再发给 UI。
@@ -88,8 +106,12 @@ class PracticeMixer(
 
         var offset = 0
         while (offset < out.size) {
-            val room = (activePlan.loopFrames - playhead).coerceAtMost((out.size - offset).toLong()).toInt()
-            renderSection(activePlan, offset, room, pulses, notePulses)
+            val room =
+                (activePlan.loopFrames - playhead).coerceIn(1L, (out.size - offset).toLong()).toInt()
+            val sectionStart = playhead
+            val sectionEnd = playhead + room
+            spawnNotes(activePlan, sectionStart, sectionEnd, offset, notePulses)
+            emitClicksAndBeats(activePlan, sectionStart, sectionEnd, offset, pulses)
             playhead += room
             offset += room
             if (playhead >= activePlan.loopFrames) {
@@ -107,6 +129,22 @@ class PracticeMixer(
             for (index in 0 until out.size) floatBuffer[index] *= timbre.mixGain
         }
         effects.process(floatBuffer, out.size)
+        pendingTimbre?.let { pending ->
+            var remaining = swapFadeRemaining
+            var index = 0
+            while (index < out.size && remaining > 0) {
+                remaining--
+                floatBuffer[index] *= remaining / SWAP_FADE_SAMPLES.toFloat()
+                index++
+            }
+            swapFadeRemaining = remaining
+            if (remaining == 0) {
+                timbre = pending
+                voices = Array(MAX_VOICES) { timbre.createVoice(sampleRate) }
+                effects = PhraseEffects(sampleRate, timbre)
+                pendingTimbre = null
+            }
+        }
         // 节拍器走在效果链之后，保持干脆，也不会被混响拖出尾巴
         clickVoices.forEach { it.render(floatBuffer, out.size) }
 
@@ -116,20 +154,6 @@ class PracticeMixer(
             out[index] = sample.coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort()
         }
         framesRendered += out.size
-    }
-
-    private fun renderSection(
-        activePlan: PracticePlan,
-        blockOffset: Int,
-        count: Int,
-        pulses: MutableList<PracticePulse>,
-        notePulses: MutableList<PracticeNotePulse>?,
-    ) {
-        if (count <= 0) return
-        val sectionStart = playhead
-        val sectionEnd = playhead + count
-        spawnNotes(activePlan, sectionStart, sectionEnd, blockOffset, notePulses)
-        emitClicksAndBeats(activePlan, sectionStart, sectionEnd, blockOffset, pulses)
     }
 
     private fun spawnNotes(
@@ -227,6 +251,7 @@ class PracticeMixer(
         const val MASTER_GAIN = 1.1f
         const val STRUM_SPACING_SAMPLES = 432
         const val MAX_STRUM_SAMPLES = 1_440
+        const val SWAP_FADE_SAMPLES = 192
 
         fun toFloat(samples: ShortArray): FloatArray = FloatArray(samples.size) { samples[it] / 32768f }
     }

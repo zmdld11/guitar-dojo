@@ -116,14 +116,10 @@ class PracticeEngine(
         configDirty.set(true)
     }
 
-    /** 切换音色；正在播放时重启音频线程，从头再放一次。 */
+    /** 切换音色；播放中由音频线程热切换，播放头与循环位置保持不变。 */
     fun setTimbre(timbre: PhraseTimbre) {
         if (timbre == desiredTimbre) return
         desiredTimbre = timbre
-        if (running) {
-            stop()
-            start()
-        }
     }
 
     val timbre: PhraseTimbre get() = desiredTimbre
@@ -178,6 +174,7 @@ class PracticeEngine(
         var appliedPlan: PracticePlan? = null
 
         while (running) {
+            if (mixer.timbre != desiredTimbre) mixer.requestTimbre(desiredTimbre)
             applyPendingConfig(mixer, appliedPhrase, appliedPlan)?.let { applied ->
                 appliedPhrase = applied.phrase
                 appliedPlan = applied.plan

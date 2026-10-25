@@ -35,6 +35,6 @@ class TimbrePreference(
         const val PREFERENCES_NAME = "phrase_settings"
         const val KEY_TIMBRE = "timbre"
         const val KEY_VERSION = "timbre_settings_version"
-        const val SETTINGS_VERSION = 2
+        const val SETTINGS_VERSION = 3
     }
 }

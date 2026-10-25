@@ -85,7 +85,13 @@ internal fun NowPlayingStrip(
                     Text(
                         text =
                             shown.joinToString(" → ") { chord ->
-                                chord.joinToString("+") { NoteNaming.labelOf(it.midi) }
+                                chord.joinToString("+") { note ->
+                                    if (state.showNoteNames) {
+                                        NoteNaming.labelOf(note.midi)
+                                    } else {
+                                        "${note.string}弦${note.fret}品"
+                                    }
+                                }
                             },
                         style = MaterialTheme.typography.bodySmall,
                     )
