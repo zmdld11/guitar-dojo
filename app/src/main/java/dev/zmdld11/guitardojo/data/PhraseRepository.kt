@@ -2,6 +2,8 @@ package dev.zmdld11.guitardojo.data
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
+import dev.zmdld11.guitardojo.BuildConfig
 import dev.zmdld11.guitardojo.core.phrase.Phrase
 import dev.zmdld11.guitardojo.core.phrase.PhraseCodec
 import dev.zmdld11.guitardojo.core.phrase.PhraseException
@@ -9,6 +11,8 @@ import dev.zmdld11.guitardojo.core.phrase.PhraseOrigin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+
+private const val TAG = "PhraseLoad"
 
 data class PhraseLibrary(
     val phrases: List<Phrase>,
@@ -28,10 +32,13 @@ class PhraseRepository(
 ) {
     suspend fun load(): PhraseLibrary =
         withContext(Dispatchers.IO) {
+            val startedNanos = System.nanoTime()
             val phrases = LinkedHashMap<String, Phrase>()
             val errors = mutableListOf<String>()
 
-            assetFiles().forEach { name ->
+            val assets = assetFiles()
+            if (BuildConfig.DEBUG) Log.d(TAG, "load start assets=${assets.size}")
+            assets.forEach { name ->
                 runCatching {
                     val text =
                         context.assets
@@ -47,12 +54,23 @@ class PhraseRepository(
                 File(context.filesDir, "phrases"),
                 context.getExternalFilesDir("phrases") ?: File(context.filesDir, "external-phrases"),
             ).forEach { dir ->
+                if (BuildConfig.DEBUG) Log.d(TAG, "dir=${dir.absolutePath} isDirectory=${dir.isDirectory}")
                 if (!dir.isDirectory) return@forEach
-                dir.listFiles { file -> file.extension == "json" }?.sortedBy { it.name }?.forEach { file ->
-                    runCatching {
-                        PhraseCodec.decode(file.readText())
-                    }.onSuccess { phrases[it.id] = it }
+                val files = dir.listFiles { file -> file.extension == "json" }?.sortedBy { it.name }.orEmpty()
+                if (BuildConfig.DEBUG) Log.d(TAG, "dir=${dir.absolutePath} json=${files.size}")
+                files.forEach { file ->
+                    val fileStartedNanos = System.nanoTime()
+                    val result = runCatching { PhraseCodec.decode(file.readText()) }
+                    result
+                        .onSuccess { phrases[it.id] = it }
                         .onFailure { errors += "本地 ${file.name}：${it.readableMessage()}" }
+                    if (BuildConfig.DEBUG) {
+                        Log.d(
+                            TAG,
+                            "file=${file.name} bytes=${file.length()} " +
+                                "ms=${(System.nanoTime() - fileStartedNanos) / 1_000_000} ok=${result.isSuccess}",
+                        )
+                    }
                 }
             }
 
@@ -64,7 +82,15 @@ class PhraseRepository(
                             .thenBy { it.title },
                     ),
                 errors = errors,
-            )
+            ).also {
+                if (BuildConfig.DEBUG) {
+                    Log.d(
+                        TAG,
+                        "load done ms=${(System.nanoTime() - startedNanos) / 1_000_000} " +
+                            "phrases=${it.phrases.size} errors=${it.errors.size}",
+                    )
+                }
+            }
         }
 
     suspend fun find(id: String): Phrase? = load().phrases.firstOrNull { it.id == id }

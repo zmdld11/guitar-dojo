@@ -2,8 +2,10 @@ package dev.zmdld11.guitardojo.ui.screens
 
 import android.app.Application
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zmdld11.guitardojo.BuildConfig
 import dev.zmdld11.guitardojo.core.phrase.Phrase
 import dev.zmdld11.guitardojo.core.phrase.PhraseException
 import dev.zmdld11.guitardojo.data.PhraseRepository
@@ -12,6 +14,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+private const val TAG = "PhraseLoad"
 
 data class PhraseLibraryUiState(
     val isLoading: Boolean = true,
@@ -27,14 +31,12 @@ class PhraseLibraryViewModel(
     private val _uiState = MutableStateFlow(PhraseLibraryUiState())
     val uiState: StateFlow<PhraseLibraryUiState> = _uiState.asStateFlow()
 
-    init {
-        refresh()
-    }
-
     fun refresh() {
+        if (BuildConfig.DEBUG) Log.d(TAG, "refresh start")
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             val library = repository.load()
+            if (BuildConfig.DEBUG) Log.d(TAG, "refresh loaded phrases=${library.phrases.size}")
             _uiState.update {
                 it.copy(
                     isLoading = false,
@@ -42,6 +44,7 @@ class PhraseLibraryViewModel(
                     errors = library.errors,
                 )
             }
+            if (BuildConfig.DEBUG) Log.d(TAG, "refresh state updated")
         }
     }
 

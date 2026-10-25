@@ -41,6 +41,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -98,121 +99,60 @@ fun PhrasesScreen(
         }
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-            Spacer(Modifier.height(28.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "乐句库",
-                        style = MaterialTheme.typography.displaySmall,
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
-                    Spacer(Modifier.height(6.dp))
-                    Text(
-                        text = "想弹的歌，拆成能练的小段。",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Spacer(Modifier.width(12.dp))
-                IconButton(onClick = viewModel::refresh) {
-                    Icon(Icons.Outlined.Refresh, contentDescription = "刷新乐句库", modifier = Modifier.size(20.dp))
-                }
-                TextButton(
-                    onClick = {
-                        importLauncher.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
-                    },
-                ) {
-                    Icon(Icons.Outlined.FileUpload, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text("导入")
-                }
-            }
-            Spacer(Modifier.height(14.dp))
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(end = 8.dp),
-            ) {
-                items(PhraseFilter.entries) { entry ->
-                    FilterChip(
-                        selected = filter == entry,
-                        onClick = { filterName = entry.name },
-                        label = { Text(entry.label) },
-                    )
-                }
-            }
-            Spacer(Modifier.height(8.dp))
+    // 首帧只画标题和筛选条，下一帧再组合乐句卡片。冷启动时 Compose 首次组合
+    // 可能要几秒，先把点击事件处理完，避免系统按输入超时判 ANR。
+    var contentReady by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        viewModel.refresh()
+        withFrameNanos { }
+        contentReady = true
+    }
+
+    val visible = remember(state.phrases, filter) { state.phrases.filter(filter::matches) }
+
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        item(key = "header", contentType = "header") {
+            PhraseLibraryHeader(
+                filter = filter,
+                onFilter = { filterName = it.name },
+                onRefresh = viewModel::refresh,
+                onImport = {
+                    importLauncher.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
+                },
+            )
         }
 
         if (state.isLoading) {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            item(key = "loading") {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            }
         }
 
         state.message?.let { message ->
-            Surface(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 6.dp)
-                        .clickable { viewModel.consumeMessage() },
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.secondaryContainer,
-            ) {
-                Text(
-                    text = message,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                )
+            item(key = "message") {
+                PhraseMessageBanner(message = message, onDismiss = viewModel::consumeMessage)
             }
         }
 
         if (state.errors.isNotEmpty()) {
-            Surface(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 6.dp)
-                        .clickable { showErrors = true },
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.errorContainer,
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        Icons.Outlined.ErrorOutline,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onErrorContainer,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = "${state.errors.size} 个乐句文件加载失败，点此查看",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                    )
-                }
+            item(key = "errors") {
+                PhraseErrorBanner(count = state.errors.size, onClick = { showErrors = true })
             }
         }
 
-        val visible = state.phrases.filter(filter::matches)
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            items(visible, key = { it.id }) { phrase ->
+        if (contentReady) {
+            items(visible, key = { it.id }, contentType = { "phrase" }) { phrase ->
                 PhraseCard(phrase = phrase, onClick = { onOpenPhrase(phrase.id) })
             }
             if (!state.isLoading && visible.isEmpty()) {
-                item {
+                item(key = "empty") {
                     EmptyState(filter)
                 }
             }
-            item { Spacer(Modifier.height(24.dp)) }
         }
     }
 
@@ -231,6 +171,113 @@ fun PhrasesScreen(
                 TextButton(onClick = { showErrors = false }) { Text("知道了") }
             },
         )
+    }
+}
+
+@Composable
+private fun PhraseLibraryHeader(
+    filter: PhraseFilter,
+    onFilter: (PhraseFilter) -> Unit,
+    onRefresh: () -> Unit,
+    onImport: () -> Unit,
+) {
+    Column {
+        Spacer(Modifier.height(16.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "乐句库",
+                    style = MaterialTheme.typography.displaySmall,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    text = "挑一段，慢慢练。",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+            IconButton(onClick = onRefresh) {
+                Icon(Icons.Outlined.Refresh, contentDescription = "刷新乐句库", modifier = Modifier.size(20.dp))
+            }
+            TextButton(onClick = onImport) {
+                Icon(Icons.Outlined.FileUpload, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("导入")
+            }
+        }
+        Spacer(Modifier.height(14.dp))
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(end = 8.dp),
+        ) {
+            items(PhraseFilter.entries) { entry ->
+                FilterChip(
+                    selected = filter == entry,
+                    onClick = { onFilter(entry) },
+                    label = { Text(entry.label) },
+                )
+            }
+        }
+        Spacer(Modifier.height(4.dp))
+    }
+}
+
+@Composable
+private fun PhraseMessageBanner(
+    message: String,
+    onDismiss: () -> Unit,
+) {
+    Surface(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp)
+                .clickable(onClick = onDismiss),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+    ) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+        )
+    }
+}
+
+@Composable
+private fun PhraseErrorBanner(
+    count: Int,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp)
+                .clickable(onClick = onClick),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.errorContainer,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                Icons.Outlined.ErrorOutline,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onErrorContainer,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = "$count 个乐句文件加载失败，点此查看",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onErrorContainer,
+            )
+        }
     }
 }
 
