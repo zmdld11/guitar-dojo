@@ -13,6 +13,8 @@ data class PlanNote(
     val velocity: Float,
     val muted: Boolean,
     val dead: Boolean,
+    /** 对应 [Phrase.notes] 的下标，供 UI 高亮正在弹的音；-1 表示无来源。 */
+    val phraseIndex: Int = -1,
 )
 
 /** 与乐句同一条流的拍点。 */
@@ -27,6 +29,12 @@ data class PracticePulse(
     val streamFrame: Long,
     val barIndex: Int,
     val beatInBar: Int,
+)
+
+/** 供 UI 高亮当前音符的事件；[phraseIndex] 指向 [Phrase.notes]。 */
+data class PracticeNotePulse(
+    val streamFrame: Long,
+    val phraseIndex: Int,
 )
 
 /**
@@ -166,8 +174,8 @@ object PhraseScheduler {
         layout: BarLayout,
     ): List<PlanNote> {
         val notes = ArrayList<PlanNote>()
-        phrase.notes.forEach { note ->
-            if (note.tick < layout.loopStartTick || note.tick >= layout.loopEndTick) return@forEach
+        phrase.notes.forEachIndexed { phraseIndex, note ->
+            if (note.tick < layout.loopStartTick || note.tick >= layout.loopEndTick) return@forEachIndexed
             val barOffset = barIndexForTick(layout.bars, note.tick)
             val startFrame =
                 layout.barStartFrames[barOffset] +
@@ -181,6 +189,7 @@ object PhraseScheduler {
                     velocity = note.velocity,
                     muted = PhraseTechniques.PALM_MUTE in note.techniques,
                     dead = PhraseTechniques.DEAD_NOTE in note.techniques,
+                    phraseIndex = phraseIndex,
                 )
         }
         return notes.sortedBy { it.startFrame }

@@ -27,6 +27,15 @@ class PracticeEngine(
     /** 已经由扬声器播放出来的小节/拍点。 */
     val pulses: SharedFlow<PracticePulse> = _pulses.asSharedFlow()
 
+    private val _notePulses =
+        MutableSharedFlow<PracticeNotePulse>(
+            extraBufferCapacity = 256,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
+        )
+
+    /** 已经由扬声器播放出来的音符，[PracticeNotePulse.phraseIndex] 指向 [Phrase.notes]。 */
+    val notePulses: SharedFlow<PracticeNotePulse> = _notePulses.asSharedFlow()
+
     @Volatile
     private var running = false
 
@@ -44,6 +53,9 @@ class PracticeEngine(
 
     @Volatile
     private var desiredClickEnabled: Boolean = true
+
+    @Volatile
+    private var desiredTimbre: PhraseTimbre = PhraseTimbre.DEFAULT
 
     @Volatile
     private var fadeRequested = false
@@ -104,6 +116,18 @@ class PracticeEngine(
         configDirty.set(true)
     }
 
+    /** 切换音色；正在播放时重启音频线程，从头再放一次。 */
+    fun setTimbre(timbre: PhraseTimbre) {
+        if (timbre == desiredTimbre) return
+        desiredTimbre = timbre
+        if (running) {
+            stop()
+            start()
+        }
+    }
+
+    val timbre: PhraseTimbre get() = desiredTimbre
+
     fun start() {
         if (running) return
         if (desiredPhrase == null) return
@@ -131,11 +155,13 @@ class PracticeEngine(
 
     private fun audioLoop() {
         Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
-        val mixer = PracticeMixer(activeSampleRate)
+        val mixer = PracticeMixer(activeSampleRate, desiredTimbre)
         activeMixer = mixer
         val buffer = ShortArray(BLOCK_FRAMES)
         val pending = ConcurrentLinkedQueue<PracticePulse>()
+        val pendingNotes = ConcurrentLinkedQueue<PracticeNotePulse>()
         val blockPulses = ArrayList<PracticePulse>(8)
+        val blockNotePulses = ArrayList<PracticeNotePulse>(16)
 
         val created = PhraseAudioTrackFactory.create(activeSampleRate)
         if (created == null) {
@@ -145,7 +171,7 @@ class PracticeEngine(
         activeSampleRate = created.sampleRate
         val audioTrack = created.track
         track = audioTrack
-        startPolling(audioTrack, pending)
+        startPolling(audioTrack, pending, pendingNotes)
         audioTrack.play()
 
         var appliedPhrase: Phrase? = null
@@ -156,11 +182,14 @@ class PracticeEngine(
                 appliedPhrase = applied.phrase
                 appliedPlan = applied.plan
                 pending.clear()
+                pendingNotes.clear()
             }
 
             blockPulses.clear()
-            mixer.render(buffer, blockPulses)
+            blockNotePulses.clear()
+            mixer.render(buffer, blockPulses, blockNotePulses)
             blockPulses.forEach(pending::add)
+            blockNotePulses.forEach(pendingNotes::add)
             audioTrack.write(buffer, 0, buffer.size)
         }
 
@@ -212,6 +241,7 @@ class PracticeEngine(
     private fun startPolling(
         audioTrack: AudioTrack,
         pending: ConcurrentLinkedQueue<PracticePulse>,
+        pendingNotes: ConcurrentLinkedQueue<PracticeNotePulse>,
     ) {
         pollThread =
             Thread({
@@ -229,6 +259,12 @@ class PracticeEngine(
                         if (pulse.streamFrame > head) break
                         pending.poll()
                         _pulses.tryEmit(pulse)
+                    }
+                    while (true) {
+                        val note = pendingNotes.peek() ?: break
+                        if (note.streamFrame > head) break
+                        pendingNotes.poll()
+                        _notePulses.tryEmit(note)
                     }
                     Thread.sleep(POLL_INTERVAL_MILLIS)
                 }

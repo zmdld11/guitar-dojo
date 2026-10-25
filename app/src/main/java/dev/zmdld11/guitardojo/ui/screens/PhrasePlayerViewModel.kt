@@ -3,9 +3,11 @@ package dev.zmdld11.guitardojo.ui.screens
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zmdld11.guitardojo.core.audio.phrase.PhraseTimbre
 import dev.zmdld11.guitardojo.core.audio.phrase.PracticeEngine
 import dev.zmdld11.guitardojo.core.phrase.Phrase
 import dev.zmdld11.guitardojo.data.PhraseRepository
+import dev.zmdld11.guitardojo.data.TimbrePreference
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +25,10 @@ data class PhrasePlayerUiState(
     val loopEndBar: Int? = null,
     val currentBar: Int? = null,
     val currentBeat: Int = 0,
+    /** 正在响的音在 [Phrase.notes] 中的下标。 */
+    val currentNoteIndex: Int? = null,
+    val timbre: PhraseTimbre = PhraseTimbre.DEFAULT,
+    val showNoteNames: Boolean = true,
 )
 
 class PhrasePlayerViewModel(
@@ -31,15 +37,24 @@ class PhrasePlayerViewModel(
 ) : AndroidViewModel(application) {
     private val repository = PhraseRepository(application)
     private val engine = PracticeEngine()
+    private val timbrePreference = TimbrePreference(application)
 
     private val _uiState = MutableStateFlow(PhrasePlayerUiState())
     val uiState: StateFlow<PhrasePlayerUiState> = _uiState.asStateFlow()
 
     init {
+        val savedTimbre = timbrePreference.load()
+        engine.setTimbre(savedTimbre)
+        _uiState.update { it.copy(timbre = savedTimbre) }
         viewModelScope.launch { loadPhrase() }
         viewModelScope.launch {
             engine.pulses.collect { pulse ->
                 _uiState.update { it.copy(currentBar = pulse.barIndex, currentBeat = pulse.beatInBar) }
+            }
+        }
+        viewModelScope.launch {
+            engine.notePulses.collect { pulse ->
+                _uiState.update { it.copy(currentNoteIndex = pulse.phraseIndex) }
             }
         }
     }
@@ -54,6 +69,7 @@ class PhrasePlayerViewModel(
                     isPlaying = false,
                     currentBar = it.loopStartBar ?: 0,
                     currentBeat = 0,
+                    currentNoteIndex = firstNoteIndex(it),
                 )
             }
         } else {
@@ -70,6 +86,7 @@ class PhrasePlayerViewModel(
                     isPlaying = engine.isRunning,
                     currentBar = it.loopStartBar ?: 0,
                     currentBeat = 0,
+                    currentNoteIndex = firstNoteIndex(it),
                 )
             }
         }
@@ -86,6 +103,23 @@ class PhrasePlayerViewModel(
         val enabled = !_uiState.value.clickEnabled
         engine.setClickEnabled(enabled)
         _uiState.update { it.copy(clickEnabled = enabled) }
+    }
+
+    fun setTimbre(timbre: PhraseTimbre) {
+        if (timbre == _uiState.value.timbre) return
+        engine.setTimbre(timbre)
+        timbrePreference.save(timbre)
+        _uiState.update { current ->
+            current.copy(
+                timbre = timbre,
+                isPlaying = engine.isRunning,
+                currentNoteIndex = if (engine.isRunning) firstNoteIndex(current) else current.currentNoteIndex,
+            )
+        }
+    }
+
+    fun toggleNoteNames() {
+        _uiState.update { it.copy(showNoteNames = !it.showNoteNames) }
     }
 
     /** 第一次点选单小节循环，第二次点另一小节扩成区间，点区间内部清除。 */
@@ -119,11 +153,11 @@ class PhrasePlayerViewModel(
             }
         }
         engine.setLoop(newStart, newEnd)
-        _uiState.update {
-            it.copy(
-                loopStartBar = newStart,
-                loopEndBar = newEnd,
-                currentBar = if (newStart != null && !it.isPlaying) newStart else it.currentBar,
+        _uiState.update { current ->
+            val next = current.copy(loopStartBar = newStart, loopEndBar = newEnd)
+            next.copy(
+                currentBar = if (newStart != null && !current.isPlaying) newStart else current.currentBar,
+                currentNoteIndex = if (current.isPlaying) current.currentNoteIndex else firstNoteIndex(next),
             )
         }
     }
@@ -149,6 +183,7 @@ class PhrasePlayerViewModel(
                 isLoading = false,
                 phrase = phrase,
                 currentBar = 0,
+                currentNoteIndex = firstNoteIndex(it.copy(phrase = phrase)),
             )
         }
         engine.setPhrase(
@@ -164,4 +199,16 @@ class PhrasePlayerViewModel(
         const val MIN_SPEED = 0.25
         const val MAX_SPEED = 1.5
     }
+}
+
+/** 当前循环区间里的第一个音；用于停止状态和刚开始播放时给 UI 一个落点。 */
+private fun firstNoteIndex(state: PhrasePlayerUiState): Int? {
+    val phrase = state.phrase ?: return null
+    if (phrase.notes.isEmpty()) return null
+    val startBar = (state.loopStartBar ?: 0).coerceIn(0, phrase.bars.lastIndex.coerceAtLeast(0))
+    val endBar = (state.loopEndBar ?: phrase.bars.lastIndex).coerceIn(startBar, phrase.bars.lastIndex.coerceAtLeast(0))
+    val from = phrase.bars.getOrNull(startBar)?.startTick ?: 0L
+    val to = phrase.bars.getOrNull(endBar)?.let { it.startTick + it.lengthTicks } ?: Long.MAX_VALUE
+    val index = phrase.notes.indexOfFirst { it.tick >= from && it.tick < to }
+    return index.takeIf { it >= 0 } ?: 0
 }

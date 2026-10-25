@@ -1,6 +1,7 @@
 package dev.zmdld11.guitardojo.core.audio.phrase
 
 import dev.zmdld11.guitardojo.core.audio.metronome.ClickSynth
+import kotlin.math.tanh
 
 /**
  * 把 [PracticePlan] 渲染成 PCM：拨弦音 + 拍点咔哒声在同一条流里，
@@ -8,9 +9,11 @@ import dev.zmdld11.guitardojo.core.audio.metronome.ClickSynth
  */
 class PracticeMixer(
     private val sampleRate: Int,
+    private val timbre: PhraseTimbre = PhraseTimbre.DEFAULT,
 ) {
-    private val voices = Array(MAX_VOICES) { PluckedStringVoice(sampleRate) }
+    private val voices: Array<PhraseVoice> = Array(MAX_VOICES) { timbre.createVoice(sampleRate) }
     private val clickVoices = Array(MAX_CLICK_VOICES) { ClickVoice() }
+    private val effects = PhraseEffects(sampleRate, timbre)
     private val accentClick =
         toFloat(ClickSynth.generate(sampleRate, 1760.0, 45, 0.45, decayRatio = 0.18))
     private val mainClick =
@@ -24,12 +27,12 @@ class PracticeMixer(
     private var beatCursor = 0
     private var framesRendered = 0L
     private var nextNoteAge = 0L
+    private var lastAttackFrame = -1L
+    private var strumIndex = 0
 
     private val fade = FadeController()
 
     val currentPlayhead: Long get() = playhead
-
-    fun currentTick(): Long = plan?.tickForFrame(playhead) ?: 0L
 
     /** 新乐句：清空所有正在响的音。 */
     fun startPlan(
@@ -43,6 +46,8 @@ class PracticeMixer(
         noteCursor = newPlan.notes.indexOfFirst { it.startFrame >= playhead }.takeIf { it >= 0 } ?: newPlan.notes.size
         clickCursor = newPlan.clicks.indexOfFirst { it.frame >= playhead }.takeIf { it >= 0 } ?: newPlan.clicks.size
         beatCursor = newPlan.beatFrames.indexOfFirst { it >= playhead }.takeIf { it >= 0 } ?: newPlan.beatFrames.size
+        lastAttackFrame = -1L
+        strumIndex = 0
     }
 
     /** 变速/换循环区间：保留正在响的尾音，只换时间轴。 */
@@ -55,6 +60,8 @@ class PracticeMixer(
         noteCursor = newPlan.notes.indexOfFirst { it.startFrame >= playhead }.takeIf { it >= 0 } ?: newPlan.notes.size
         clickCursor = newPlan.clicks.indexOfFirst { it.frame >= playhead }.takeIf { it >= 0 } ?: newPlan.clicks.size
         beatCursor = newPlan.beatFrames.indexOfFirst { it >= playhead }.takeIf { it >= 0 } ?: newPlan.beatFrames.size
+        lastAttackFrame = -1L
+        strumIndex = 0
     }
 
     fun requestFadeOut() {
@@ -69,6 +76,7 @@ class PracticeMixer(
     fun render(
         out: ShortArray,
         pulses: MutableList<PracticePulse>,
+        notePulses: MutableList<PracticeNotePulse>? = null,
     ) {
         val activePlan = plan
         if (activePlan == null) {
@@ -81,7 +89,7 @@ class PracticeMixer(
         var offset = 0
         while (offset < out.size) {
             val room = (activePlan.loopFrames - playhead).coerceAtMost((out.size - offset).toLong()).toInt()
-            renderSection(activePlan, offset, room, pulses)
+            renderSection(activePlan, offset, room, pulses, notePulses)
             playhead += room
             offset += room
             if (playhead >= activePlan.loopFrames) {
@@ -89,15 +97,19 @@ class PracticeMixer(
                 noteCursor = 0
                 clickCursor = 0
                 beatCursor = 0
+                lastAttackFrame = -1L
+                strumIndex = 0
             }
         }
 
         voices.forEach { it.render(floatBuffer, out.size) }
+        effects.process(floatBuffer, out.size)
+        // 节拍器走在效果链之后，保持干脆，也不会被混响拖出尾巴
         clickVoices.forEach { it.render(floatBuffer, out.size) }
 
         fade.apply(floatBuffer, out.size)
         for (index in 0 until out.size) {
-            val sample = (floatBuffer[index] * Short.MAX_VALUE).toInt()
+            val sample = (tanh(floatBuffer[index] * MASTER_GAIN) * Short.MAX_VALUE).toInt()
             out[index] = sample.coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort()
         }
         framesRendered += out.size
@@ -108,23 +120,52 @@ class PracticeMixer(
         blockOffset: Int,
         count: Int,
         pulses: MutableList<PracticePulse>,
+        notePulses: MutableList<PracticeNotePulse>?,
     ) {
         if (count <= 0) return
         val sectionStart = playhead
         val sectionEnd = playhead + count
+        spawnNotes(activePlan, sectionStart, sectionEnd, blockOffset, notePulses)
+        emitClicksAndBeats(activePlan, sectionStart, sectionEnd, blockOffset, pulses)
+    }
 
+    private fun spawnNotes(
+        activePlan: PracticePlan,
+        sectionStart: Long,
+        sectionEnd: Long,
+        blockOffset: Int,
+        notePulses: MutableList<PracticeNotePulse>?,
+    ) {
         while (noteCursor < activePlan.notes.size) {
             val note = activePlan.notes[noteCursor]
             if (note.startFrame >= sectionEnd) break
             if (note.startFrame >= sectionStart) {
-                spawnNote(
-                    note = note,
-                    blockOffset = blockOffset + (note.startFrame - sectionStart).toInt(),
-                )
+                // 同一帧上的多个音按顺序错开几毫秒，模仿扫弦；否则和弦会像机关枪一样齐响
+                strumIndex = if (note.startFrame == lastAttackFrame) strumIndex + 1 else 0
+                lastAttackFrame = note.startFrame
+                val strumOffset = (strumIndex * STRUM_SPACING_SAMPLES).coerceAtMost(MAX_STRUM_SAMPLES)
+                val offsetSamples = blockOffset + (note.startFrame - sectionStart).toInt()
+                spawnNote(note, offsetSamples, strumOffset)
+                if (note.phraseIndex >= 0) {
+                    notePulses?.add(
+                        PracticeNotePulse(
+                            streamFrame = framesRendered + offsetSamples,
+                            phraseIndex = note.phraseIndex,
+                        ),
+                    )
+                }
             }
             noteCursor++
         }
+    }
 
+    private fun emitClicksAndBeats(
+        activePlan: PracticePlan,
+        sectionStart: Long,
+        sectionEnd: Long,
+        blockOffset: Int,
+        pulses: MutableList<PracticePulse>,
+    ) {
         while (clickCursor < activePlan.clicks.size) {
             val click = activePlan.clicks[clickCursor]
             if (click.frame >= sectionEnd) break
@@ -136,7 +177,6 @@ class PracticeMixer(
             }
             clickCursor++
         }
-
         while (beatCursor < activePlan.beatFrames.size) {
             val frame = activePlan.beatFrames[beatCursor]
             if (frame >= sectionEnd) break
@@ -151,6 +191,7 @@ class PracticeMixer(
     private fun spawnNote(
         note: PlanNote,
         blockOffset: Int,
+        strumOffset: Int,
     ) {
         val voice = chooseVoice()
         nextNoteAge++
@@ -159,7 +200,7 @@ class PracticeMixer(
             velocity = note.velocity,
             muted = note.muted,
             dead = note.dead,
-            startOffsetSamples = blockOffset,
+            startOffsetSamples = blockOffset + strumOffset,
             noteAge = nextNoteAge,
         )
     }
@@ -172,14 +213,17 @@ class PracticeMixer(
         voice.start(if (accent) accentClick else mainClick, offset)
     }
 
-    private fun chooseVoice(): PluckedStringVoice {
+    private fun chooseVoice(): PhraseVoice {
         voices.firstOrNull { !it.isActive }?.let { return it }
-        return voices.minBy { it.age }
+        return voices.minBy { it.noteAge() }
     }
 
     private companion object {
         const val MAX_VOICES = 16
         const val MAX_CLICK_VOICES = 6
+        const val MASTER_GAIN = 1.1f
+        const val STRUM_SPACING_SAMPLES = 432
+        const val MAX_STRUM_SAMPLES = 1_440
 
         fun toFloat(samples: ShortArray): FloatArray = FloatArray(samples.size) { samples[it] / 32768f }
     }

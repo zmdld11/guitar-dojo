@@ -1,26 +1,18 @@
 package dev.zmdld11.guitardojo.ui.screens
 
 import android.app.Application
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.PlayArrow
@@ -39,31 +31,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.zmdld11.guitardojo.core.audio.phrase.PhraseTimbre
 import dev.zmdld11.guitardojo.core.phrase.Phrase
-import dev.zmdld11.guitardojo.core.phrase.PhraseBar
-import dev.zmdld11.guitardojo.core.phrase.PhraseNote
 import kotlin.math.roundToInt
-
-private const val STRING_GAP_DP = 14
-private const val BEAT_WIDTH_DP = 44
-private const val TOP_PADDING_DP = 24
-private const val SIDE_PADDING_DP = 10
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -123,19 +104,10 @@ private fun PlayerContent(
     viewModel: PhrasePlayerViewModel,
 ) {
     val phrase = state.phrase ?: return
-    val listState = rememberLazyListState()
-    val notesByBar = remember(phrase.id) { phrase.notes.groupBy { it.bar } }
-
-    LaunchedEffect(state.currentBar) {
-        val bar = state.currentBar ?: return@LaunchedEffect
-        if (bar in phrase.bars.indices) {
-            listState.animateScrollToItem(bar)
-        }
-    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(6.dp))
             if (phrase.description.isNotBlank()) {
                 Text(
                     text = phrase.description,
@@ -144,7 +116,7 @@ private fun PlayerContent(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(4.dp))
             }
             Text(
                 text = "${phrase.bars.size} 小节 · 基础 ${baseBpm(phrase).roundToInt()} BPM · 难度 ${difficultyDots(phrase.difficulty)}",
@@ -153,27 +125,18 @@ private fun PlayerContent(
             )
         }
 
-        Spacer(Modifier.height(12.dp))
-        LazyRow(
-            state = listState,
-            contentPadding = PaddingValues(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            items(phrase.bars, key = { it.index }) { bar ->
-                TabBarCard(
-                    phrase = phrase,
-                    bar = bar,
-                    notes = notesByBar[bar.index].orEmpty(),
-                    isCurrent = state.currentBar == bar.index,
-                    isLoopSelected = isBarInLoop(bar.index, state),
-                    isLoopStart = state.loopStartBar == bar.index,
-                    isLoopEnd = state.loopEndBar == bar.index,
-                    onClick = { viewModel.selectBar(bar.index) },
-                )
-            }
-        }
+        Spacer(Modifier.height(6.dp))
+        val currentNote = state.currentNoteIndex?.let { phrase.notes.getOrNull(it) }
+        PhraseScore(
+            phrase = phrase,
+            currentTick = currentNote?.tick,
+            currentBar = state.currentBar,
+            loopStartBar = state.loopStartBar,
+            loopEndBar = state.loopEndBar,
+            showNoteNames = state.showNoteNames,
+            onSelectBar = viewModel::selectBar,
+        )
 
-        Spacer(Modifier.height(10.dp))
         Row(
             modifier = Modifier.padding(horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -183,7 +146,9 @@ private fun PlayerContent(
                     if (state.loopStartBar == null) {
                         "循环：整首 · 点小节选段"
                     } else {
-                        "循环：第 ${(state.loopStartBar ?: 0) + 1}–${(state.loopEndBar ?: 0) + 1} 小节"
+                        val start = (state.loopStartBar ?: 0) + 1
+                        val end = (state.loopEndBar ?: 0) + 1
+                        if (start == end) "循环：第 $start 小节" else "循环：第 $start–$end 小节"
                     },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -194,134 +159,10 @@ private fun PlayerContent(
             }
         }
 
+        NowPlayingStrip(phrase = phrase, state = state)
+
         Spacer(Modifier.weight(1f))
         ControlPanel(state = state, viewModel = viewModel)
-    }
-}
-
-@Composable
-private fun TabBarCard(
-    phrase: Phrase,
-    bar: PhraseBar,
-    notes: List<PhraseNote>,
-    isCurrent: Boolean,
-    isLoopSelected: Boolean,
-    isLoopStart: Boolean,
-    isLoopEnd: Boolean,
-    onClick: () -> Unit,
-) {
-    val beats = bar.beatsPerBar.coerceAtLeast(1)
-    val barWidth = (beats * BEAT_WIDTH_DP + SIDE_PADDING_DP * 2).dp
-    val strings = phrase.tuning.size.coerceAtLeast(1)
-    val height = (TOP_PADDING_DP + (strings - 1) * STRING_GAP_DP + 14).dp
-    val background =
-        when {
-            isCurrent -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f)
-            isLoopSelected -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f)
-            else -> MaterialTheme.colorScheme.surface
-        }
-    val borderColor =
-        when {
-            isCurrent -> MaterialTheme.colorScheme.primary
-            isLoopSelected -> MaterialTheme.colorScheme.secondary
-            else -> MaterialTheme.colorScheme.outlineVariant
-        }
-    val shape = RoundedCornerShape(10.dp)
-    val lineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f)
-    val gridColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-
-    Box(
-        modifier =
-            Modifier
-                .width(barWidth)
-                .height(height)
-                .background(background, shape)
-                .border(if (isCurrent || isLoopSelected) 2.dp else 1.dp, borderColor, shape)
-                .clickable(onClick = onClick),
-    ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val left = SIDE_PADDING_DP.dp.toPx()
-            val right = size.width - SIDE_PADDING_DP.dp.toPx()
-            val top = TOP_PADDING_DP.dp.toPx()
-            val gap = STRING_GAP_DP.dp.toPx()
-            for (index in 0 until strings) {
-                val y = top + index * gap
-                drawLine(
-                    color = lineColor,
-                    start = Offset(left, y),
-                    end = Offset(right, y),
-                    strokeWidth = 1.dp.toPx(),
-                )
-            }
-            for (beat in 1 until beats) {
-                val x = left + (right - left) * beat / beats
-                drawLine(
-                    color = gridColor,
-                    start = Offset(x, top),
-                    end = Offset(x, top + (strings - 1) * gap),
-                    strokeWidth = 1.dp.toPx(),
-                )
-            }
-        }
-        Text(
-            text = "${bar.index + 1}",
-            fontSize = 9.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.offset(x = 4.dp, y = 2.dp),
-        )
-        if (isLoopStart) {
-            Text(
-                text = "A",
-                fontSize = 9.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.secondary,
-                modifier =
-                    Modifier
-                        .align(Alignment.TopEnd)
-                        .offset(x = (-6).dp, y = 2.dp),
-            )
-        }
-        if (isLoopEnd) {
-            Text(
-                text = "B",
-                fontSize = 9.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.secondary,
-                modifier =
-                    Modifier
-                        .align(Alignment.TopEnd)
-                        .offset(x = (-6).dp, y = 12.dp),
-            )
-        }
-        notes.forEach { note ->
-            val fraction = (note.tick - bar.startTick).toFloat() / bar.lengthTicks.toFloat()
-            val x = (SIDE_PADDING_DP + (barWidth.value - SIDE_PADDING_DP * 2) * fraction).dp - 6.dp
-            val y = (TOP_PADDING_DP + (note.string - 1) * STRING_GAP_DP).dp - 6.5.dp
-            NoteChip(fret = note.fret, x = x, y = y)
-        }
-    }
-}
-
-@Composable
-private fun NoteChip(
-    fret: Int,
-    x: Dp,
-    y: Dp,
-) {
-    Box(
-        modifier =
-            Modifier
-                .offset(x = x, y = y)
-                .size(width = 12.dp, height = 13.dp)
-                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(3.dp)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = "$fret",
-            fontSize = if (fret >= 10) 7.sp else 8.sp,
-            color = MaterialTheme.colorScheme.onPrimary,
-            maxLines = 1,
-        )
     }
 }
 
@@ -336,19 +177,19 @@ private fun ControlPanel(
     var sliderValue by remember(state.speed) { mutableFloatStateOf(state.speed.toFloat()) }
 
     Surface(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 FilledIconButton(
                     onClick = viewModel::togglePlayback,
-                    modifier = Modifier.size(54.dp),
+                    modifier = Modifier.size(52.dp),
                 ) {
                     Icon(
                         imageVector = if (state.isPlaying) Icons.Outlined.Stop else Icons.Outlined.PlayArrow,
                         contentDescription = if (state.isPlaying) "停止" else "播放",
-                        modifier = Modifier.size(28.dp),
+                        modifier = Modifier.size(26.dp),
                     )
                 }
-                Spacer(Modifier.width(14.dp))
+                Spacer(Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "$actual BPM",
@@ -365,9 +206,24 @@ private fun ControlPanel(
                     onClick = viewModel::toggleClick,
                     label = { Text("节拍") },
                 )
+                Spacer(Modifier.width(6.dp))
+                FilterChip(
+                    selected = state.showNoteNames,
+                    onClick = viewModel::toggleNoteNames,
+                    label = { Text("音名") },
+                )
             }
-            Spacer(Modifier.height(10.dp))
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Spacer(Modifier.height(4.dp))
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                items(PhraseTimbre.entries) { timbre ->
+                    FilterChip(
+                        selected = state.timbre == timbre,
+                        onClick = { viewModel.setTimbre(timbre) },
+                        label = { Text(timbre.label) },
+                    )
+                }
+            }
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 items(SPEED_PRESETS) { preset ->
                     FilterChip(
                         selected = kotlin.math.abs(state.speed - preset) < 0.001,
@@ -385,15 +241,6 @@ private fun ControlPanel(
             )
         }
     }
-}
-
-private fun isBarInLoop(
-    bar: Int,
-    state: PhrasePlayerUiState,
-): Boolean {
-    val start = state.loopStartBar ?: return false
-    val end = state.loopEndBar ?: return false
-    return bar in start..end
 }
 
 private fun baseBpm(phrase: Phrase): Double = phrase.bars.firstOrNull()?.tempoBpm ?: 120.0

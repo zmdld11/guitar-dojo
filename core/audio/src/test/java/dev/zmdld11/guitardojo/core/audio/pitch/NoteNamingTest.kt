@@ -64,6 +64,14 @@ class NoteNamingTest {
     }
 
     @Test
+    fun `MIDI 音高给出带八度的音名`() {
+        assertEquals("E2", NoteNaming.labelOf(40))
+        assertEquals("E4", NoteNaming.labelOf(64))
+        assertEquals("C4", NoteNaming.labelOf(60))
+        assertEquals("E", NoteNaming.nameOf(64))
+    }
+
+    @Test
     fun `非法频率返回空`() {
         assertNull(NoteNaming.fromFrequency(0.0))
         assertNull(NoteNaming.fromFrequency(-1.0))

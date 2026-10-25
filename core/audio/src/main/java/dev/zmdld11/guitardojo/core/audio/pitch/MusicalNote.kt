@@ -49,6 +49,15 @@ object NoteNaming {
         a4: Double = 440.0,
     ): Double = a4 * 2.0.pow((midi - 69) / 12.0)
 
+    /** MIDI 音高的音名（不含八度），例如 64 -> "E"。 */
+    fun nameOf(midi: Int): String = NAMES[((midi % 12) + 12) % 12]
+
+    /** MIDI 音高的音名，例如 64 -> "E4"。 */
+    fun labelOf(midi: Int): String {
+        val octave = Math.floorDiv(midi, 12) - 1
+        return "${nameOf(midi)}$octave"
+    }
+
     /** 两个频率相差多少音分。 */
     fun centsBetween(
         fromHz: Double,

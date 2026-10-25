@@ -87,13 +87,15 @@ class Builder:
 
 
 def add_eighths(b: Builder, positions: list[tuple[int, int]]) -> None:
+    # 从已有音符之后接着排，否则「上行 + 下行」两段会全部叠在第 0 tick 上。
+    start = len(b.phrase["notes"])
     for index, (string, fret) in enumerate(positions):
-        b.add_tick(index * (PPQ // 2), PPQ // 2, string, fret)
+        b.add_tick((start + index) * (PPQ // 2), PPQ // 2, string, fret)
 
 
 def chromatic_basic() -> dict:
     b = Builder("builtin.chromatic.basic", "爬格子 · 基础四连音",
-                "1-2-3-4 指序，先上后下。慢速也要让每个音干净地响出来。",
+                "从 6 弦 1 品开始，每弦 1-2-3-4 指序上行到 1 弦，再反向走回 6 弦。",
                 1, ["热身", "爬格子"], 80, 6)
     add_eighths(b, [(s, f) for s in range(6, 0, -1) for f in (1, 2, 3, 4)])
     add_eighths(b, [(s, f) for s in range(1, 7) for f in (4, 3, 2, 1)])
@@ -102,7 +104,7 @@ def chromatic_basic() -> dict:
 
 def chromatic_reverse() -> dict:
     b = Builder("builtin.chromatic.reverse", "爬格子 · 反向四连音",
-                "4-3-2-1 指序。反向时最容易糊音，注意抬指不要带出声。",
+                "从 6 弦 4 品开始，每弦 4-3-2-1 指序上行到 1 弦，再反向走回 6 弦。",
                 2, ["热身", "爬格子"], 90, 6)
     add_eighths(b, [(s, f) for s in range(1, 7) for f in (4, 3, 2, 1)])
     add_eighths(b, [(s, f) for s in range(6, 0, -1) for f in (1, 2, 3, 4)])

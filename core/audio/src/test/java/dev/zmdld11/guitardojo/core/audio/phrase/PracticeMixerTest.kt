@@ -63,6 +63,20 @@ class PracticeMixerTest {
     }
 
     @Test
+    fun `音符脉冲带乐句内的音高下标`() {
+        val mixer = PracticeMixer(48_000)
+        mixer.startPlan(plan(notes = listOf(Planned(0L, phraseIndex = 7))))
+        val out = ShortArray(256)
+        val notes = ArrayList<PracticeNotePulse>()
+
+        mixer.render(out, ArrayList(), notes)
+
+        assertEquals(1, notes.size)
+        assertEquals(0L, notes[0].streamFrame)
+        assertEquals(7, notes[0].phraseIndex)
+    }
+
+    @Test
     fun `没有计划时不崩溃且输出静音`() {
         val mixer = PracticeMixer(48_000)
         val out = ShortArray(256) { 1 }
@@ -75,6 +89,7 @@ class PracticeMixerTest {
     private data class Planned(
         val startFrame: Long,
         val midi: Int = 40,
+        val phraseIndex: Int = -1,
     )
 
     private fun plan(
@@ -93,6 +108,7 @@ class PracticeMixerTest {
                         velocity = 0.8f,
                         muted = false,
                         dead = false,
+                        phraseIndex = it.phraseIndex,
                     )
                 },
             clicks = clicks,
