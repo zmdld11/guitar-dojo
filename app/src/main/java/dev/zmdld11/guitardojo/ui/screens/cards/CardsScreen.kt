@@ -3,6 +3,7 @@ package dev.zmdld11.guitardojo.ui.screens.cards
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -63,7 +64,15 @@ fun CardsScreen(
     val cards = remember(deck) { BuiltInCards.byDeck(deck) }
     val today = remember { LocalDate.now().toEpochDay() }
     val initialProgress = remember(store) { store.load() }
-    val queue = remember(deck, initialProgress, today) { scheduler.order(cards, initialProgress, today) }
+    val cardsById = remember(cards) { cards.associateBy(TrainingCard::id) }
+    val initialQueueIds =
+        remember(deck, initialProgress, today) {
+            ArrayList(scheduler.order(cards, initialProgress, today).map(TrainingCard::id))
+        }
+    // 队列顺序在进入牌组时固定；否则评完一张卡后重排会让 index 指向另一张卡。
+    // 用 rememberSaveable 保存 id 列表，旋转屏幕/切换深色模式也不会跳卡。
+    val queueIds: ArrayList<String> = rememberSaveable(deck) { initialQueueIds }
+    val queue = remember(queueIds, cardsById) { queueIds.mapNotNull(cardsById::get) }
 
     var progress by remember(deck) { mutableStateOf(initialProgress) }
     var index by rememberSaveable(deck) { mutableStateOf(0) }
@@ -195,43 +204,48 @@ private fun CardFace(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
     ) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(24.dp),
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
         ) {
-            Text(
-                text = card.deck.title,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.secondary,
-            )
-            Spacer(Modifier.height(10.dp))
-            Text(
-                text = card.prompt,
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            if (revealed) {
-                Spacer(Modifier.height(22.dp))
-                HorizontalDivider()
-                Spacer(Modifier.height(22.dp))
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(24.dp),
+            ) {
                 Text(
-                    text = card.answer,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary,
+                    text = card.deck.title,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.secondary,
                 )
-                if (card.detail.isNotBlank()) {
-                    Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(10.dp))
+                Text(
+                    text = card.prompt,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                if (revealed) {
+                    Spacer(Modifier.height(22.dp))
+                    HorizontalDivider()
+                    Spacer(Modifier.height(22.dp))
                     Text(
-                        text = card.detail,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        text = card.answer,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary,
                     )
-                }
-                card.figure?.let { path ->
-                    CardFigure(path = path, description = card.title)
+                    if (card.detail.isNotBlank()) {
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            text = card.detail,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    card.figure?.let { path ->
+                        CardFigure(path = path, description = card.title)
+                    }
                 }
             }
         }
