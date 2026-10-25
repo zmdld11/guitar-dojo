@@ -135,6 +135,7 @@ private fun PlayerContent(
             loopStartBar = state.loopStartBar,
             loopEndBar = state.loopEndBar,
             showNoteNames = state.showNoteNames,
+            showPicking = state.showPicking,
             onSelectBar = viewModel::selectBar,
         )
 
@@ -212,6 +213,12 @@ private fun ControlPanel(
                     selected = state.showNoteNames,
                     onClick = viewModel::toggleNoteNames,
                     label = { Text("音名") },
+                )
+                Spacer(Modifier.width(6.dp))
+                FilterChip(
+                    selected = state.showPicking,
+                    onClick = viewModel::togglePicking,
+                    label = { Text("拨向") },
                 )
             }
             Spacer(Modifier.height(4.dp))

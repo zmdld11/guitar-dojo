@@ -29,6 +29,7 @@ data class PhrasePlayerUiState(
     val currentNoteIndex: Int? = null,
     val timbre: PhraseTimbre = PhraseTimbre.DEFAULT,
     val showNoteNames: Boolean = false,
+    val showPicking: Boolean = true,
 )
 
 class PhrasePlayerViewModel(
@@ -114,6 +115,10 @@ class PhrasePlayerViewModel(
 
     fun toggleNoteNames() {
         _uiState.update { it.copy(showNoteNames = !it.showNoteNames) }
+    }
+
+    fun togglePicking() {
+        _uiState.update { it.copy(showPicking = !it.showPicking) }
     }
 
     /** 第一次点选单小节循环，第二次点另一小节扩成区间，点区间内部清除。 */

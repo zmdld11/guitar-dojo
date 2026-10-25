@@ -1,20 +1,19 @@
 package dev.zmdld11.guitardojo.ui.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.zmdld11.guitardojo.core.audio.pitch.NoteNaming
 import dev.zmdld11.guitardojo.core.phrase.Phrase
@@ -45,57 +44,62 @@ internal fun NowPlayingStrip(
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp, vertical = 8.dp),
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
                 Text(
                     text = if (state.isPlaying) "正在弹" else "起始音",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                if (note != null) {
-                    Row(verticalAlignment = Alignment.Bottom) {
-                        Text(
-                            text = chord.joinToString(" + ") { NoteNaming.labelOf(it.midi) },
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            text = chord.joinToString(" · ") { "${it.string}弦${it.fret}品" },
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(bottom = 4.dp),
-                        )
-                    }
-                } else {
-                    Text("—", style = MaterialTheme.typography.headlineSmall)
-                }
-            }
-            if (upcoming.isNotEmpty()) {
-                Column(horizontalAlignment = Alignment.End) {
+                if (upcoming.isNotEmpty()) {
                     Text(
                         text = "接下来",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    val shown = if (upcoming.any { it.size > 1 }) upcoming.take(2) else upcoming
-                    Text(
-                        text =
-                            shown.joinToString(" → ") { chord ->
-                                chord.joinToString("+") { note ->
-                                    if (state.showNoteNames) {
-                                        NoteNaming.labelOf(note.midi)
-                                    } else {
-                                        "${note.string}弦${note.fret}品"
-                                    }
-                                }
-                            },
-                        style = MaterialTheme.typography.bodySmall,
-                    )
                 }
+            }
+            if (note != null) {
+                val positions = chord.joinToString(" · ") { "${it.string}弦${it.fret}品" }
+                val names = chord.joinToString(" + ") { NoteNaming.labelOf(it.midi) }
+                Text(
+                    text = if (state.showNoteNames) names else positions,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = if (state.showNoteNames) positions else names,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            } else {
+                Text("—", style = MaterialTheme.typography.headlineSmall)
+            }
+            if (upcoming.isNotEmpty()) {
+                val shown = if (upcoming.any { it.size > 1 }) upcoming.take(2) else upcoming
+                Text(
+                    text =
+                        shown.joinToString(" → ") { chord ->
+                            chord.joinToString("+") { next ->
+                                if (state.showNoteNames) {
+                                    NoteNaming.labelOf(next.midi)
+                                } else {
+                                    "${next.string}弦${next.fret}品"
+                                }
+                            }
+                        },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
     }

@@ -1,18 +1,17 @@
 package dev.zmdld11.guitardojo.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,11 +30,10 @@ import androidx.compose.ui.unit.sp
 import dev.zmdld11.guitardojo.core.audio.pitch.NoteNaming
 import dev.zmdld11.guitardojo.core.phrase.Phrase
 import dev.zmdld11.guitardojo.core.phrase.PhraseNote
-import kotlin.math.roundToInt
 
 internal const val SCORE_BEAT_WIDTH_DP = 46
 internal const val SCORE_STRING_GAP_DP = 13
-internal const val SCORE_HEADER_DP = 26
+internal const val SCORE_HEADER_DP = 40
 internal const val SCORE_STEM_DP = 18
 internal const val SCORE_STAFF_TOP_DP = SCORE_HEADER_DP + SCORE_STEM_DP
 internal const val SCORE_BOTTOM_PADDING_DP = 12
@@ -43,6 +41,7 @@ internal const val SCORE_LEADING_DP = 14
 private const val LEGEND_WIDTH_DP = 20
 private const val NOTE_BOX_WIDTH_DP = 24
 private const val NOTE_BOX_HEIGHT_DP = 13
+private const val TUPLET_TOP_DP = 28
 
 /**
  * GP 风格的单行六线谱：六条弦连续贯穿所有小节，小节线、拍格、符干都在同一张谱上，
@@ -56,11 +55,17 @@ internal fun PhraseScore(
     loopStartBar: Int?,
     loopEndBar: Int?,
     showNoteNames: Boolean,
+    showPicking: Boolean,
     onSelectBar: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (phrase.bars.isEmpty()) return
     val density = LocalDensity.current
+    val displayNotes = remember(phrase.id) { displayNotesOf(phrase) }
+    val attacks = remember(displayNotes) { displayNotes.groupBy { it.tick }.toSortedMap() }
+    val ties = remember(displayNotes) { tieSegmentsOf(displayNotes) }
+    val pickMarks = remember(phrase.id) { pickMarksOf(phrase) }
+    val tripletTicks = remember(phrase.id) { tripletAnchorTicksOf(phrase) }
     val barWidths = remember(phrase.id) { phrase.bars.map { SCORE_BEAT_WIDTH_DP.dp * it.beatsPerBar } }
     val barStarts =
         remember(barWidths) {
@@ -88,6 +93,7 @@ internal fun PhraseScore(
 
     Row(modifier = modifier.fillMaxWidth()) {
         ScoreLegend(phrase = phrase)
+        Spacer(Modifier.width(10.dp))
         Box(
             modifier =
                 Modifier
@@ -108,12 +114,17 @@ internal fun PhraseScore(
             ) {
                 ScoreStaff(
                     phrase = phrase,
+                    displayNotes = displayNotes,
+                    attacks = attacks,
+                    ties = ties,
+                    pickMarks = pickMarks,
                     barStarts = barStarts,
                     barWidths = barWidths,
                     loopStartBar = loopStartBar,
                     loopEndBar = loopEndBar,
                     currentBar = currentBar,
                     currentTick = currentTick,
+                    showPicking = showPicking,
                 )
                 ScoreHeader(
                     phrase = phrase,
@@ -122,13 +133,23 @@ internal fun PhraseScore(
                     loopStartBar = loopStartBar,
                     loopEndBar = loopEndBar,
                 )
-                phrase.notes.forEach { note ->
-                    val position = notePosition(phrase, note, barStarts, barWidths)
+                displayNotes.forEach { note ->
+                    val position = notePosition(phrase, note.tick, note.source.string, barStarts, barWidths)
                     ScoreNoteLabel(
                         note = note,
                         position = position,
-                        isCurrent = note.tick == currentTick,
+                        isCurrent = !note.tiedFromPrevious && note.tick == currentTick,
                         showNoteNames = showNoteNames,
+                    )
+                }
+                tripletTicks.forEach { tick ->
+                    val note = phrase.notes.firstOrNull { it.tick == tick } ?: return@forEach
+                    val x = notePosition(phrase, tick, note.string, barStarts, barWidths).x
+                    Text(
+                        text = "3",
+                        fontSize = 8.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.offset(x = x - 3.dp, y = TUPLET_TOP_DP.dp),
                     )
                 }
             }
@@ -174,18 +195,13 @@ private fun ScoreHeader(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.offset(x = barStarts[index] + 3.dp, y = 1.dp),
         )
-        if (index == 0) {
+        val signature = bar.timeSignature
+        if (signature.size >= 2 && signature != listOf(4, 4)) {
             Text(
-                text = "${bar.timeSignature.getOrElse(0) { 4 }}/${bar.timeSignature.getOrElse(1) { 4 }}",
-                fontSize = 11.sp,
+                text = "${signature[0]}/${signature[1]}",
+                fontSize = 8.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.offset(x = barStarts[index] + 3.dp, y = 11.dp),
-            )
-            Text(
-                text = "♩ = ${bar.tempoBpm.roundToInt()}",
-                fontSize = 9.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.offset(x = barStarts[index] + 40.dp, y = 13.dp),
+                modifier = Modifier.offset(x = barStarts[index] + 13.dp, y = 2.dp),
             )
         }
     }
@@ -211,20 +227,15 @@ private fun ScoreHeader(
 
 @Composable
 private fun ScoreNoteLabel(
-    note: PhraseNote,
+    note: DisplayNote,
     position: NotePosition,
     isCurrent: Boolean,
     showNoteNames: Boolean,
 ) {
-    val text = if (showNoteNames) NoteNaming.labelOf(note.midi) else "${note.fret}"
-    val background =
-        when {
-            isCurrent -> MaterialTheme.colorScheme.primary
-            else -> MaterialTheme.colorScheme.surface
-        }
+    val text = if (showNoteNames) NoteNaming.labelOf(note.source.midi) else "${note.source.fret}"
     val color =
         if (isCurrent) {
-            MaterialTheme.colorScheme.onPrimary
+            MaterialTheme.colorScheme.primary
         } else {
             MaterialTheme.colorScheme.onSurface
         }
@@ -235,8 +246,7 @@ private fun ScoreNoteLabel(
             Modifier
                 .offset(x = x, y = y)
                 .width(NOTE_BOX_WIDTH_DP.dp)
-                .height(NOTE_BOX_HEIGHT_DP.dp)
-                .background(background, RoundedCornerShape(2.dp)),
+                .height(NOTE_BOX_HEIGHT_DP.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -286,26 +296,23 @@ internal fun notePosition(
     note: PhraseNote,
     barStarts: List<Dp>,
     barWidths: List<Dp>,
+): NotePosition = notePosition(phrase, note.tick, note.string, barStarts, barWidths)
+
+internal fun notePosition(
+    phrase: Phrase,
+    tick: Long,
+    string: Int,
+    barStarts: List<Dp>,
+    barWidths: List<Dp>,
 ): NotePosition {
-    val index = phrase.bars.indexOfFirst { it.index == note.bar }.coerceAtLeast(0)
-    val bar = phrase.bars[index]
-    val fraction = ((note.tick - bar.startTick).toFloat() / bar.lengthTicks.toFloat()).coerceIn(0f, 1f)
+    val bar = phrase.barAt(tick) ?: phrase.bars.last()
+    val index = phrase.bars.indexOfFirst { it.index == bar.index }.coerceAtLeast(0)
+    val fraction = ((tick - bar.startTick).toFloat() / bar.lengthTicks.toFloat()).coerceIn(0f, 1f)
     return NotePosition(
         x = barStarts[index] + barWidths[index] * fraction,
-        y = (SCORE_STAFF_TOP_DP + (note.string - 1) * SCORE_STRING_GAP_DP).dp,
+        y = (SCORE_STAFF_TOP_DP + (string - 1) * SCORE_STRING_GAP_DP).dp,
     )
 }
-
-/** 时值对应的符尾数量：四分音符没有符尾，八分一条，更短两条。 */
-internal fun stemFlags(
-    durationTicks: Long,
-    ppq: Int,
-): Int =
-    when {
-        durationTicks >= ppq -> 0
-        durationTicks >= ppq / 2 -> 1
-        else -> 2
-    }
 
 private fun barIndexAt(
     x: Float,

@@ -17,17 +17,21 @@ import dev.zmdld11.guitardojo.core.phrase.Phrase
 @Composable
 internal fun ScoreStaff(
     phrase: Phrase,
+    displayNotes: List<DisplayNote>,
+    attacks: Map<Long, List<DisplayNote>>,
+    ties: List<TieSegment>,
+    pickMarks: List<PickMark>,
     barStarts: List<Dp>,
     barWidths: List<Dp>,
     loopStartBar: Int?,
     loopEndBar: Int?,
     currentBar: Int?,
     currentTick: Long?,
+    showPicking: Boolean,
 ) {
     val colors =
         ScoreColors(
             line = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
-            grid = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
             bar = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
             loop = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.35f),
             current = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.30f),
@@ -46,7 +50,8 @@ internal fun ScoreStaff(
         drawScoreHighlights(geometry, phrase, loopStartBar, loopEndBar, currentBar, colors)
         drawStaffLines(geometry, colors)
         drawBarAndBeatLines(geometry, phrase, colors)
-        drawStems(geometry, phrase, currentTick, colors)
+        drawRhythm(geometry, phrase, displayNotes, attacks, ties, currentTick, colors)
+        if (showPicking) drawPickMarks(geometry, phrase, pickMarks, currentTick, colors)
     }
 }
 
@@ -102,19 +107,8 @@ private fun DrawScope.drawBarAndBeatLines(
     phrase: Phrase,
     colors: ScoreColors,
 ) {
-    phrase.bars.forEachIndexed { index, bar ->
+    phrase.bars.forEachIndexed { index, _ ->
         val startX = geometry.barStarts[index].toPx()
-        val widthPx = geometry.barWidths[index].toPx()
-        val beats = bar.beatsPerBar.coerceAtLeast(1)
-        for (beat in 1 until beats) {
-            val x = startX + widthPx * beat / beats
-            drawLine(
-                color = colors.grid,
-                start = Offset(x, geometry.staffTop),
-                end = Offset(x, geometry.staffBottom),
-                strokeWidth = 0.7.dp.toPx(),
-            )
-        }
         drawLine(
             color = colors.bar,
             start = Offset(startX, geometry.staffTop),
@@ -130,38 +124,41 @@ private fun DrawScope.drawBarAndBeatLines(
     )
 }
 
-private fun DrawScope.drawStems(
+private fun DrawScope.drawRhythm(
     geometry: ScoreGeometry,
     phrase: Phrase,
+    notes: List<DisplayNote>,
+    attacks: Map<Long, List<DisplayNote>>,
+    ties: List<TieSegment>,
     currentTick: Long?,
     colors: ScoreColors,
 ) {
-    val stemTop = geometry.staffTop - SCORE_STEM_DP.dp.toPx()
-    phrase.notes.groupBy { it.tick }.forEach { (tick, group) ->
-        val position = notePosition(phrase, group.first(), geometry.barStarts, geometry.barWidths)
-        val x = position.x.toPx()
-        val highlighted = tick == currentTick
-        val color = if (highlighted) colors.activeStem else colors.stem
-        drawLine(
-            color = color,
-            start = Offset(x, geometry.staffTop),
-            end = Offset(x, stemTop),
-            strokeWidth = if (highlighted) 2.dp.toPx() else 1.dp.toPx(),
-        )
-        val flags = stemFlags(group.minOf { it.durationTicks }, phrase.ppq)
-        for (flag in 0 until flags) {
-            val flagY = stemTop + flag * 5.dp.toPx()
-            drawLine(
-                color = color,
-                start = Offset(x, flagY),
-                end = Offset(x + 4.dp.toPx(), flagY + 5.dp.toPx()),
-                strokeWidth = 1.dp.toPx(),
-            )
-        }
-    }
+    drawStems(geometry, phrase, attacks, currentTick, colors)
+    drawBeamsAndFlags(geometry, phrase, attacks, currentTick, colors)
+    drawDots(geometry, phrase, notes, currentTick, colors)
+    drawTies(geometry, phrase, ties, currentTick, colors)
 }
 
-private class ScoreGeometry(
+internal fun displayPosition(
+    geometry: ScoreGeometry,
+    phrase: Phrase,
+    note: DisplayNote,
+): NotePosition = displayPosition(geometry, phrase, note.tick, note.source.string)
+
+internal fun displayPosition(
+    geometry: ScoreGeometry,
+    phrase: Phrase,
+    tick: Long,
+    string: Int,
+): NotePosition = notePosition(phrase, tick, string, geometry.barStarts, geometry.barWidths)
+
+internal fun DrawScope.stemX(
+    geometry: ScoreGeometry,
+    phrase: Phrase,
+    note: DisplayNote,
+): Float = displayPosition(geometry, phrase, note).x.toPx() + STEM_OFFSET_DP.dp.toPx()
+
+internal class ScoreGeometry(
     val staffTop: Float,
     val gap: Float,
     val strings: Int,
@@ -171,12 +168,26 @@ private class ScoreGeometry(
     val staffBottom: Float get() = staffTop + (strings - 1) * gap
 }
 
-private class ScoreColors(
+internal class ScoreColors(
     val line: Color,
-    val grid: Color,
     val bar: Color,
     val loop: Color,
     val current: Color,
     val stem: Color,
     val activeStem: Color,
 )
+
+internal const val STEM_OFFSET_DP = 6
+internal const val BEAM_GAP_DP = 4
+internal const val BEAM_WIDTH_DP = 1.4f
+internal const val PARTIAL_BEAM_DP = 5
+internal const val FLAG_LENGTH_DP = 4
+internal const val FLAG_DROP_DP = 5
+internal const val DOT_OFFSET_DP = 9
+internal const val DOT_GAP_DP = 3.5f
+internal const val DOT_RADIUS_DP = 1.3f
+internal const val TIE_LIFT_DP = 8
+internal const val TIE_ARC_DP = 4
+internal const val PICK_ROW_DP = 20
+internal const val PICK_HALF_WIDTH_DP = 2.5f
+internal const val PICK_HEIGHT_DP = 5
