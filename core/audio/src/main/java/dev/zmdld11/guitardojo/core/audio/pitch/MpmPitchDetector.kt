@@ -74,7 +74,16 @@ class MpmPitchDetector(
         if (doubled > maxFrequencyHz) return frequency
         val low = goertzelMagnitude(samples, frequency)
         val high = goertzelMagnitude(samples, doubled)
-        return if (high > low * SUBHARMONIC_RATIO) doubled else frequency
+        if (high <= low * SUBHARMONIC_RATIO) return frequency
+
+        // 候选接近最低音时，2f 很强可能只是低音弦的强二次谐波（真机低音 E）。
+        // 真基频会有 3f 能量；若 3f 很弱，说明候选只是低八度伪峰（如 D3 被判成 D2），
+        // 才允许把它抬回 2f。
+        if (frequency / 2 < minFrequencyHz) {
+            val third = goertzelMagnitude(samples, frequency * 3)
+            if (third > high * ODD_HARMONIC_RATIO) return frequency
+        }
+        return doubled
     }
 
     private fun goertzelMagnitude(
@@ -139,5 +148,6 @@ class MpmPitchDetector(
     private companion object {
         const val SILENCE_RMS = 1e-4
         const val SUBHARMONIC_RATIO = 6.0
+        const val ODD_HARMONIC_RATIO = 0.15
     }
 }

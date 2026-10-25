@@ -35,6 +35,28 @@ class MpmPitchDetectorTest {
     }
 
     @Test
+    fun `低音 E 基频很弱时也不抬高八度`() {
+        // 真机低音 E 的基频可能只剩二次谐波的几十分之一；不能把它当成 E3
+        val fundamental = 82.41
+        val result =
+            detector.detect(
+                Signals.tone(
+                    fundamental,
+                    harmonics = listOf(0.05, 1.0, 0.7, 0.4, 0.2),
+                ),
+            )
+        assertNotNull(result)
+        assertEquals(fundamental, result!!.frequencyHz, fundamental * 0.02)
+    }
+
+    @Test
+    fun `D3 被误判成 D2 时会抬回真实音高`() {
+        val samples = Signals.tone(146.83)
+        val corrected = detector.rejectSubharmonic(samples, 73.42)
+        assertEquals(146.83, corrected, 1.0)
+    }
+
+    @Test
     fun `加入一成白噪仍能识别`() {
         val target = 196.0
         val result = detector.detect(Signals.tone(target, noiseAmount = 0.1))
