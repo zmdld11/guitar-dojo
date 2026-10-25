@@ -11,6 +11,8 @@ enum class PhraseTimbre(
     CHIP("chip", "8-bit"),
     MARIMBA("marimba", "马林巴"),
     CLEAN_GUITAR("guitar", "清音吉他"),
+    CRUNCH_GUITAR("crunch", "过载吉他"),
+    DISTORTION_GUITAR("distortion", "失真吉他"),
     ;
 
     fun createVoice(sampleRate: Int): PhraseVoice =
@@ -21,10 +23,12 @@ enum class PhraseTimbre(
             CHIP -> ChipVoice(sampleRate)
             MARIMBA -> MarimbaVoice(sampleRate)
             CLEAN_GUITAR -> PluckedStringVoice(sampleRate)
+            CRUNCH_GUITAR -> DistortedGuitarVoice(sampleRate, drive = 3.5f, outputGain = 0.30f)
+            DISTORTION_GUITAR -> DistortedGuitarVoice(sampleRate, drive = 16f, outputGain = 0.20f)
         }
 
     companion object {
-        val DEFAULT = ELECTRIC_PIANO
+        val DEFAULT = MARIMBA
 
         fun fromId(id: String?): PhraseTimbre = entries.firstOrNull { it.id == id } ?: DEFAULT
     }

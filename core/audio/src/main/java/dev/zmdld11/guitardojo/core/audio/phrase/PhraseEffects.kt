@@ -18,7 +18,8 @@ internal class PhraseEffects(
 ) {
     private val settings = Settings.of(timbre)
     private val highpass = OnePoleHighpass(45.0, sampleRate)
-    private val midScoop = if (settings.scoopMids) Biquad.peaking(sampleRate, 800.0, -2.5, 0.8) else null
+    private val body = if (settings.bodyDb != 0.0) Biquad.peaking(sampleRate, 120.0, settings.bodyDb, 0.9) else null
+    private val mid = if (settings.midDb != 0.0) Biquad.peaking(sampleRate, 750.0, settings.midDb, 0.8) else null
     private val presence = Biquad.peaking(sampleRate, 2_800.0, settings.presenceDb, 0.9)
     private val air = Biquad.highShelf(sampleRate, 6_500.0, settings.airDb)
     private val chorus = if (settings.chorusMix > 0f) Chorus(sampleRate, settings.chorusMix) else null
@@ -30,7 +31,8 @@ internal class PhraseEffects(
     ) {
         for (index in 0 until count) {
             var sample = highpass.process(buffer[index])
-            midScoop?.let { sample = it.process(sample) }
+            body?.let { sample = it.process(sample) }
+            mid?.let { sample = it.process(sample) }
             sample = presence.process(sample)
             sample = air.process(sample)
             chorus?.let { sample = it.process(sample) }
@@ -39,21 +41,24 @@ internal class PhraseEffects(
     }
 
     private data class Settings(
+        val bodyDb: Double,
+        val midDb: Double,
         val presenceDb: Double,
         val airDb: Double,
         val chorusMix: Float,
         val reverbMix: Float,
-        val scoopMids: Boolean,
     ) {
         companion object {
             fun of(timbre: PhraseTimbre): Settings =
                 when (timbre) {
-                    PhraseTimbre.ELECTRIC_PIANO -> Settings(1.5, 1.5, 0.12f, 0.22f, false)
-                    PhraseTimbre.PIANO -> Settings(1.0, 1.2, 0.05f, 0.20f, false)
-                    PhraseTimbre.SYNTH_LEAD -> Settings(2.0, 1.5, 0.16f, 0.22f, false)
-                    PhraseTimbre.CHIP -> Settings(0.0, 0.0, 0f, 0.10f, false)
-                    PhraseTimbre.MARIMBA -> Settings(1.2, 1.0, 0f, 0.18f, false)
-                    PhraseTimbre.CLEAN_GUITAR -> Settings(4.5, 2.5, 0.26f, 0.20f, true)
+                    PhraseTimbre.ELECTRIC_PIANO -> Settings(0.0, 0.0, 1.5, 1.5, 0.12f, 0.22f)
+                    PhraseTimbre.PIANO -> Settings(0.0, 0.0, 1.0, 1.2, 0.05f, 0.20f)
+                    PhraseTimbre.SYNTH_LEAD -> Settings(0.0, 0.0, 2.0, 1.5, 0.16f, 0.22f)
+                    PhraseTimbre.CHIP -> Settings(0.0, 0.0, 0.0, 0.0, 0f, 0.10f)
+                    PhraseTimbre.MARIMBA -> Settings(0.0, 0.0, 1.2, 1.0, 0f, 0.18f)
+                    PhraseTimbre.CLEAN_GUITAR -> Settings(3.0, -1.0, 1.5, 1.0, 0.18f, 0.20f)
+                    PhraseTimbre.CRUNCH_GUITAR -> Settings(2.0, 1.5, 0.5, 0.5, 0f, 0.10f)
+                    PhraseTimbre.DISTORTION_GUITAR -> Settings(1.0, 2.5, 0.0, 0.0, 0f, 0.08f)
                 }
         }
     }

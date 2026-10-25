@@ -41,6 +41,7 @@ class PluckedStringVoice(
     private var pickGain = 0f
     private var pickHpInput = 0f
     private var pickHpOutput = 0f
+    private var pickLowpass = 0f
 
     override var isActive: Boolean = false
         private set
@@ -101,30 +102,40 @@ class PluckedStringVoice(
         pickIndex = 0
         pickHpInput = 0f
         pickHpOutput = 0f
+        pickLowpass = 0f
         age = noteAge
         isActive = true
     }
 
     /**
-     * 生成一段带拨弦位置梳状滤波的噪声。
+     * 用「拨弦位置的三角位移 + 少量噪声」作为初始激励。
      *
-     * 在靠近琴桥处拨弦会削弱某些谐波，音色更「电」；直接喂白噪声则偏木吉他、也偏闷。
+     * 纯噪声的频谱随机，某些音高会缺基频、被检测成高八度；三角位移的频谱
+     * 以基频和低次谐波为主，音色也更接近真实拨弦，而不是三味线式的细亮声。
      */
     private fun fillExcitation() {
-        var hpInput = 0f
-        var hpOutput = 0f
+        val peakIndex = (delayLength * PICK_POSITION).toInt().coerceIn(1, delayLength - 2)
+        val leftSpan = peakIndex.toFloat()
+        val rightSpan = (delayLength - 1 - peakIndex).toFloat()
+        var lowpassed = 0f
+        var mean = 0f
         for (index in 0 until delayLength) {
+            val triangle =
+                if (index <= peakIndex) {
+                    index / leftSpan
+                } else {
+                    (delayLength - 1 - index) / rightSpan
+                }
             val white = random.nextFloat() * 2f - 1f
-            val highpassed = EXCITATION_HP_ALPHA * (hpOutput + white - hpInput)
-            hpInput = white
-            hpOutput = highpassed
-            excitation[index] = highpassed
+            lowpassed += EXCITATION_LP_ALPHA * (white - lowpassed)
+            val value = (2f * triangle - 1f) * SHAPE_LEVEL + lowpassed * NOISE_LEVEL
+            excitation[index] = value
+            mean += value
         }
-        val pickDelay = ((delayLength - 1) * PICK_POSITION).toInt().coerceIn(1, delayLength - 1)
+        mean /= delayLength
         var peak = 1e-6f
-        for (index in delayLength - 1 downTo 0) {
-            val delayed = if (index >= pickDelay) excitation[index - pickDelay] * PICK_COMB_GAIN else 0f
-            val value = excitation[index] - delayed
+        for (index in 0 until delayLength) {
+            val value = excitation[index] - mean
             delay[index] = value
             peak = maxOf(peak, abs(value))
         }
@@ -165,8 +176,9 @@ class PluckedStringVoice(
                 val hp = PICK_HP_ALPHA * (pickHpOutput + white - pickHpInput)
                 pickHpInput = white
                 pickHpOutput = hp
+                pickLowpass += PICK_LP_ALPHA * (hp - pickLowpass)
                 val envelope = exp(-pickIndex.toFloat() / PICK_DECAY_SAMPLES)
-                sample += hp * envelope * pickGain
+                sample += pickLowpass * envelope * pickGain
                 pickIndex++
                 pickRemaining--
             }
@@ -194,22 +206,24 @@ class PluckedStringVoice(
     private companion object {
         const val MAX_DELAY_SAMPLES = 4096
         const val MIN_DELAY_SAMPLES = 8
-        const val BASE_GAIN = 0.34f
-        const val NORMAL_DECAY_SECONDS = 2.2
+        const val BASE_GAIN = 0.30f
+        const val NORMAL_DECAY_SECONDS = 2.4
         const val MUTED_DECAY_SECONDS = 0.22
         const val DEAD_DECAY_SECONDS = 0.07
         const val MAX_SECONDS = 3.2
         const val DEAD_SECONDS = 0.09
         const val DC_BLOCK_COEFFICIENT = 0.9995f
         const val LOOP_DELAY_COMPENSATION = 0.5
-        const val EXCITATION_HP_ALPHA = 0.985f
+        const val EXCITATION_LP_ALPHA = 0.30f
         const val EXCITATION_PEAK = 0.9f
-        const val PICK_POSITION = 0.13f
-        const val PICK_COMB_GAIN = 0.85f
+        const val PICK_POSITION = 0.24f
+        const val SHAPE_LEVEL = 0.85f
+        const val NOISE_LEVEL = 0.15f
 
-        const val PICK_LEVEL = 0.16f
+        const val PICK_LEVEL = 0.09f
         const val PICK_DECAY_SAMPLES = 180f
         const val PICK_SAMPLES = 288
         const val PICK_HP_ALPHA = 0.80f
+        const val PICK_LP_ALPHA = 0.45f
     }
 }
