@@ -17,7 +17,7 @@ internal fun DrawScope.drawPickMarks(
     marks.forEach { mark ->
         val position = displayPosition(geometry, phrase, mark.tick, mark.string)
         val color = if (mark.tick == currentTick) colors.activeStem else colors.stem
-        drawPickGlyph(position.x.toPx(), PICK_ROW_DP.dp.toPx(), mark.direction, color)
+        drawPickGlyph(position.x.toPx(), geometry.metrics.glyph(PICK_ROW_DP).toPx(), mark.direction, color, geometry.metrics)
     }
 }
 
@@ -26,9 +26,10 @@ private fun DrawScope.drawPickGlyph(
     top: Float,
     direction: PickDirection,
     color: Color,
+    metrics: ScoreMetrics,
 ) {
-    val half = PICK_HALF_WIDTH_DP.dp.toPx()
-    val height = PICK_HEIGHT_DP.dp.toPx()
+    val half = metrics.glyph(PICK_HALF_WIDTH_DP).toPx()
+    val height = metrics.glyph(PICK_HEIGHT_DP).toPx()
     val stroke = 1.dp.toPx()
     if (direction == PickDirection.DOWN) {
         drawLine(color, Offset(x - half, top), Offset(x + half, top), stroke, cap = StrokeCap.Round)

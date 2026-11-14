@@ -3,6 +3,7 @@ package dev.zmdld11.guitardojo.ui.screens
 import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -106,65 +107,69 @@ private fun PlayerContent(
 ) {
     val phrase = state.phrase ?: return
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-            Spacer(Modifier.height(6.dp))
-            if (phrase.description.isNotBlank()) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val metrics = ScoreMetrics.forWidth(maxWidth.value.toInt())
+        Column(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                Spacer(Modifier.height(6.dp))
+                if (phrase.description.isNotBlank()) {
+                    Text(
+                        text = phrase.description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                }
                 Text(
-                    text = phrase.description,
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = "${phrase.bars.size} 小节 · 基础 ${baseBpm(phrase).roundToInt()} BPM · 难度 ${difficultyDots(phrase.difficulty)}",
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(Modifier.height(4.dp))
             }
-            Text(
-                text = "${phrase.bars.size} 小节 · 基础 ${baseBpm(phrase).roundToInt()} BPM · 难度 ${difficultyDots(phrase.difficulty)}",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
 
-        Spacer(Modifier.height(6.dp))
-        val currentNote = state.currentNoteIndex?.let { phrase.notes.getOrNull(it) }
-        PhraseScore(
-            phrase = phrase,
-            currentTick = currentNote?.tick,
-            currentBar = state.currentBar,
-            loopStartBar = state.loopStartBar,
-            loopEndBar = state.loopEndBar,
-            showNoteNames = state.showNoteNames,
-            showPicking = state.showPicking,
-            onSelectBar = viewModel::selectBar,
-        )
-
-        Row(
-            modifier = Modifier.padding(horizontal = 20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text =
-                    if (state.loopStartBar == null) {
-                        "循环：整首 · 点小节选段"
-                    } else {
-                        val start = (state.loopStartBar ?: 0) + 1
-                        val end = (state.loopEndBar ?: 0) + 1
-                        if (start == end) "循环：第 $start 小节" else "循环：第 $start–$end 小节"
-                    },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.weight(1f),
+            Spacer(Modifier.height(6.dp))
+            val currentNote = state.currentNoteIndex?.let { phrase.notes.getOrNull(it) }
+            PhraseScore(
+                phrase = phrase,
+                currentTick = currentNote?.tick,
+                currentBar = state.currentBar,
+                loopStartBar = state.loopStartBar,
+                loopEndBar = state.loopEndBar,
+                showNoteNames = state.showNoteNames,
+                showPicking = state.showPicking,
+                metrics = metrics,
+                onSelectBar = viewModel::selectBar,
             )
-            if (state.loopStartBar != null) {
-                TextButton(onClick = viewModel::clearLoop) { Text("整首") }
+
+            Row(
+                modifier = Modifier.padding(horizontal = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text =
+                        if (state.loopStartBar == null) {
+                            "循环：整首 · 点小节选段"
+                        } else {
+                            val start = (state.loopStartBar ?: 0) + 1
+                            val end = (state.loopEndBar ?: 0) + 1
+                            if (start == end) "循环：第 $start 小节" else "循环：第 $start–$end 小节"
+                        },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
+                if (state.loopStartBar != null) {
+                    TextButton(onClick = viewModel::clearLoop) { Text("整首") }
+                }
             }
+
+            NowPlayingStrip(phrase = phrase, state = state)
+
+            Spacer(Modifier.weight(1f))
+            ControlPanel(state = state, viewModel = viewModel)
         }
-
-        NowPlayingStrip(phrase = phrase, state = state)
-
-        Spacer(Modifier.weight(1f))
-        ControlPanel(state = state, viewModel = viewModel)
     }
 }
 

@@ -139,7 +139,7 @@ private fun TodaySessionCard(modifier: Modifier = Modifier) {
             )
             Spacer(Modifier.height(10.dp))
             Text(
-                text = "开始今天的训练吧 🎸",
+                text = "训练流开发中",
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
             )

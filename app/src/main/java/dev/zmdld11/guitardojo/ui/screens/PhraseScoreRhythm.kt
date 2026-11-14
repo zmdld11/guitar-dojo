@@ -16,11 +16,11 @@ internal fun DrawScope.drawStems(
     currentTick: Long?,
     colors: ScoreColors,
 ) {
-    val stemTop = geometry.staffTop - SCORE_STEM_DP.dp.toPx()
+    val stemTop = geometry.staffTop - geometry.metrics.glyph(SCORE_STEM_DP).toPx()
     attacks.forEach { (tick, group) ->
         if (!group.first().value.stem) return@forEach
         val positions = group.map { displayPosition(geometry, phrase, it) }
-        val x = positions.first().x.toPx() + STEM_OFFSET_DP.dp.toPx()
+        val x = positions.first().x.toPx() + geometry.metrics.glyph(STEM_OFFSET_DP).toPx()
         val top = positions.minOf { it.y.toPx() }
         val color = if (tick == currentTick) colors.activeStem else colors.stem
         drawLine(
@@ -40,7 +40,7 @@ internal fun DrawScope.drawBeamsAndFlags(
     currentTick: Long?,
     colors: ScoreColors,
 ) {
-    val stemTop = geometry.staffTop - SCORE_STEM_DP.dp.toPx()
+    val stemTop = geometry.staffTop - geometry.metrics.glyph(SCORE_STEM_DP).toPx()
     phrase.bars.forEach { bar ->
         val barEnd = bar.startTick + bar.lengthTicks
         val beatTicks = phrase.beatTicksOf(bar).coerceAtLeast(1)
@@ -55,7 +55,7 @@ internal fun DrawScope.drawBeamsAndFlags(
                         .map { (tick, notes) ->
                             Attack(tick, stemX(geometry, phrase, notes.first()), notes.first().value.flags)
                         }
-                drawBeatGroup(group, stemTop, currentTick, colors)
+                drawBeatGroup(group, stemTop, geometry.metrics, currentTick, colors)
             }
     }
 }
@@ -63,6 +63,7 @@ internal fun DrawScope.drawBeamsAndFlags(
 private fun DrawScope.drawBeatGroup(
     attacks: List<Attack>,
     stemTop: Float,
+    metrics: ScoreMetrics,
     currentTick: Long?,
     colors: ScoreColors,
 ) {
@@ -76,7 +77,7 @@ private fun DrawScope.drawBeatGroup(
         while (end + 1 < attacks.size && attacks[end + 1].flags > 0) end++
         val run = attacks.subList(index, end + 1)
         val color = if (run.any { it.tick == currentTick }) colors.activeStem else colors.stem
-        if (run.size == 1) drawFlags(run.first(), stemTop, color) else drawBeams(run, stemTop, color)
+        if (run.size == 1) drawFlags(run.first(), stemTop, metrics, color) else drawBeams(run, stemTop, metrics, color)
         index = end + 1
     }
 }
@@ -84,11 +85,13 @@ private fun DrawScope.drawBeatGroup(
 private fun DrawScope.drawBeams(
     run: List<Attack>,
     stemTop: Float,
+    metrics: ScoreMetrics,
     color: Color,
 ) {
     val maxFlags = run.maxOf { it.flags }
+    val beamGap = metrics.glyph(BEAM_GAP_DP).toPx()
     for (level in 0 until maxFlags) {
-        val y = stemTop + level * BEAM_GAP_DP.dp.toPx()
+        val y = stemTop + level * beamGap
         var index = 0
         while (index < run.size) {
             if (run[index].flags <= level) {
@@ -102,8 +105,8 @@ private fun DrawScope.drawBeams(
             drawLine(
                 color = color,
                 start = Offset(left, y),
-                end = Offset(if (end > index) right else left + PARTIAL_BEAM_DP.dp.toPx(), y),
-                strokeWidth = BEAM_WIDTH_DP.dp.toPx(),
+                end = Offset(if (end > index) right else left + metrics.glyph(PARTIAL_BEAM_DP).toPx(), y),
+                strokeWidth = metrics.glyph(BEAM_WIDTH_DP).toPx(),
                 cap = StrokeCap.Round,
             )
             index = end + 1
@@ -114,15 +117,17 @@ private fun DrawScope.drawBeams(
 private fun DrawScope.drawFlags(
     attack: Attack,
     stemTop: Float,
+    metrics: ScoreMetrics,
     color: Color,
 ) {
+    val beamGap = metrics.glyph(BEAM_GAP_DP).toPx()
     for (level in 0 until attack.flags) {
-        val y = stemTop + level * BEAM_GAP_DP.dp.toPx()
+        val y = stemTop + level * beamGap
         drawLine(
             color = color,
             start = Offset(attack.x, y),
-            end = Offset(attack.x + FLAG_LENGTH_DP.dp.toPx(), y + FLAG_DROP_DP.dp.toPx()),
-            strokeWidth = BEAM_WIDTH_DP.dp.toPx(),
+            end = Offset(attack.x + metrics.glyph(FLAG_LENGTH_DP).toPx(), y + metrics.glyph(FLAG_DROP_DP).toPx()),
+            strokeWidth = metrics.glyph(BEAM_WIDTH_DP).toPx(),
             cap = StrokeCap.Round,
         )
     }
@@ -143,10 +148,12 @@ internal fun DrawScope.drawDots(
         for (dot in 0 until dots) {
             drawCircle(
                 color = color,
-                radius = DOT_RADIUS_DP.dp.toPx(),
+                radius = geometry.metrics.glyph(DOT_RADIUS_DP).toPx(),
                 center =
                     Offset(
-                        position.x.toPx() + DOT_OFFSET_DP.dp.toPx() + dot * DOT_GAP_DP.dp.toPx(),
+                        position.x.toPx() +
+                            geometry.metrics.glyph(DOT_OFFSET_DP).toPx() +
+                            dot * geometry.metrics.glyph(DOT_GAP_DP).toPx(),
                         position.y.toPx(),
                     ),
             )
@@ -174,14 +181,15 @@ private fun DrawScope.drawTieSegment(
 ) {
     val start = displayPosition(geometry, phrase, first)
     val end = displayPosition(geometry, phrase, second)
-    val y = start.y.toPx() - TIE_LIFT_DP.dp.toPx()
+    val lift = geometry.metrics.glyph(TIE_LIFT_DP).toPx()
+    val y = start.y.toPx() - lift
     val path =
         Path().apply {
-            moveTo(start.x.toPx() + STEM_OFFSET_DP.dp.toPx(), y)
+            moveTo(start.x.toPx() + geometry.metrics.glyph(STEM_OFFSET_DP).toPx(), y)
             quadraticTo(
                 (start.x.toPx() + end.x.toPx()) / 2f,
-                y - TIE_ARC_DP.dp.toPx(),
-                end.x.toPx() - STEM_OFFSET_DP.dp.toPx(),
+                y - geometry.metrics.glyph(TIE_ARC_DP).toPx(),
+                end.x.toPx() - geometry.metrics.glyph(STEM_OFFSET_DP).toPx(),
                 y,
             )
         }

@@ -28,6 +28,7 @@ internal fun ScoreStaff(
     currentBar: Int?,
     currentTick: Long?,
     showPicking: Boolean,
+    metrics: ScoreMetrics,
 ) {
     val colors =
         ScoreColors(
@@ -41,11 +42,12 @@ internal fun ScoreStaff(
     Canvas(modifier = Modifier.fillMaxSize()) {
         val geometry =
             ScoreGeometry(
-                staffTop = SCORE_STAFF_TOP_DP.dp.toPx(),
-                gap = SCORE_STRING_GAP_DP.dp.toPx(),
+                staffTop = metrics.staffTop.toPx(),
+                gap = metrics.stringGap.toPx(),
                 strings = phrase.tuning.size.coerceAtLeast(1),
                 barStarts = barStarts,
                 barWidths = barWidths,
+                metrics = metrics,
             )
         drawScoreHighlights(geometry, phrase, loopStartBar, loopEndBar, currentBar, colors)
         drawStaffLines(geometry, colors)
@@ -63,8 +65,8 @@ private fun DrawScope.drawScoreHighlights(
     currentBar: Int?,
     colors: ScoreColors,
 ) {
-    val top = geometry.staffTop - SCORE_STEM_DP.dp.toPx()
-    val bottom = geometry.staffBottom + SCORE_BOTTOM_PADDING_DP.dp.toPx() * 0.6f
+    val top = geometry.staffTop - geometry.metrics.glyph(SCORE_STEM_DP).toPx()
+    val bottom = geometry.staffBottom + geometry.metrics.bottomPadding.toPx() * 0.6f
     val loopStart = loopStartBar?.let { bar -> phrase.bars.indexOfFirst { it.index == bar } } ?: -1
     val loopEnd = loopEndBar?.let { bar -> phrase.bars.indexOfFirst { it.index == bar } } ?: -1
     if (loopStart >= 0 && loopEnd >= loopStart) {
@@ -150,13 +152,13 @@ internal fun displayPosition(
     phrase: Phrase,
     tick: Long,
     string: Int,
-): NotePosition = notePosition(phrase, tick, string, geometry.barStarts, geometry.barWidths)
+): NotePosition = notePosition(phrase, tick, string, geometry.barStarts, geometry.barWidths, geometry.metrics)
 
 internal fun DrawScope.stemX(
     geometry: ScoreGeometry,
     phrase: Phrase,
     note: DisplayNote,
-): Float = displayPosition(geometry, phrase, note).x.toPx() + STEM_OFFSET_DP.dp.toPx()
+): Float = displayPosition(geometry, phrase, note).x.toPx() + geometry.metrics.glyph(STEM_OFFSET_DP).toPx()
 
 internal class ScoreGeometry(
     val staffTop: Float,
@@ -164,6 +166,7 @@ internal class ScoreGeometry(
     val strings: Int,
     val barStarts: List<Dp>,
     val barWidths: List<Dp>,
+    val metrics: ScoreMetrics,
 ) {
     val staffBottom: Float get() = staffTop + (strings - 1) * gap
 }
@@ -177,6 +180,8 @@ internal class ScoreColors(
     val activeStem: Color,
 )
 
+// 小记号的紧凑档基准值，绘制时经 ScoreMetrics.glyph 按窗口档位缩放
+internal const val SCORE_STEM_DP = 18
 internal const val STEM_OFFSET_DP = 6
 internal const val BEAM_GAP_DP = 4
 internal const val BEAM_WIDTH_DP = 1.4f

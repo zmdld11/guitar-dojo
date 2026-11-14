@@ -5,16 +5,21 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -53,78 +58,112 @@ fun GuitarDojoApp() {
     val currentRoute = backStackEntry?.destination?.route
     val isTopLevel = TopLevelDestination.entries.any { it.route == currentRoute }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        bottomBar = {
-            if (isTopLevel) {
-                GuitarDojoBottomBar(
-                    currentRoute = currentRoute,
-                    onNavigate = navController::navigateToTopLevel,
-                )
-            }
-        },
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = TopLevelDestination.TODAY.route,
-            modifier = Modifier.padding(innerPadding),
-            enterTransition = {
-                fadeIn(animationSpec = tween(durationMillis = PAGE_FADE_MILLIS, delayMillis = 40)) +
-                    slideInVertically(animationSpec = tween(durationMillis = PAGE_SLIDE_MILLIS)) { fullHeight ->
-                        fullHeight / 24
-                    }
+    BoxWithConstraints {
+        val useRail = maxWidth >= 840.dp
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
+            bottomBar = {
+                if (!useRail && isTopLevel) {
+                    GuitarDojoBottomBar(
+                        currentRoute = currentRoute,
+                        onNavigate = navController::navigateToTopLevel,
+                    )
+                }
             },
-            exitTransition = { fadeOut(animationSpec = tween(durationMillis = PAGE_FADE_MILLIS)) },
-            popEnterTransition = { fadeIn(animationSpec = tween(durationMillis = PAGE_FADE_MILLIS)) },
-            popExitTransition = {
-                fadeOut(animationSpec = tween(durationMillis = PAGE_FADE_MILLIS)) +
-                    slideOutVertically(animationSpec = tween(durationMillis = PAGE_SLIDE_MILLIS)) { fullHeight ->
-                        fullHeight / 24
+        ) { innerPadding ->
+            Row(modifier = Modifier.padding(innerPadding)) {
+                if (useRail && isTopLevel) {
+                    GuitarDojoRail(
+                        currentRoute = currentRoute,
+                        onNavigate = navController::navigateToTopLevel,
+                    )
+                }
+                NavHost(
+                    navController = navController,
+                    startDestination = TopLevelDestination.TODAY.route,
+                    modifier = Modifier.weight(1f),
+                    enterTransition = {
+                        fadeIn(animationSpec = tween(durationMillis = PAGE_FADE_MILLIS, delayMillis = 40)) +
+                            slideInVertically(animationSpec = tween(durationMillis = PAGE_SLIDE_MILLIS)) { fullHeight ->
+                                fullHeight / 24
+                            }
+                    },
+                    exitTransition = { fadeOut(animationSpec = tween(durationMillis = PAGE_FADE_MILLIS)) },
+                    popEnterTransition = { fadeIn(animationSpec = tween(durationMillis = PAGE_FADE_MILLIS)) },
+                    popExitTransition = {
+                        fadeOut(animationSpec = tween(durationMillis = PAGE_FADE_MILLIS)) +
+                            slideOutVertically(animationSpec = tween(durationMillis = PAGE_SLIDE_MILLIS)) { fullHeight ->
+                                fullHeight / 24
+                            }
+                    },
+                ) {
+                    composable(TopLevelDestination.TODAY.route) {
+                        TodayScreen(onOpenCards = { navController.navigate(cardsRoute(CardDeck.THEORY)) })
                     }
-            },
-        ) {
-            composable(TopLevelDestination.TODAY.route) {
-                TodayScreen(onOpenCards = { navController.navigate(cardsRoute(CardDeck.THEORY)) })
+                    composable(TopLevelDestination.TOOLS.route) {
+                        ToolsScreen(
+                            onOpenMetronome = { navController.navigate(METRONOME_ROUTE) },
+                            onOpenTuner = { navController.navigate(TUNER_ROUTE) },
+                            onOpenCards = { deck -> navController.navigate(cardsRoute(deck)) },
+                        )
+                    }
+                    composable(TopLevelDestination.PHRASES.route) {
+                        PhrasesScreen(onOpenPhrase = { phraseId -> navController.navigate(phraseRoute(phraseId)) })
+                    }
+                    composable(TopLevelDestination.PROFILE.route) { ProfileScreen() }
+                    composable(METRONOME_ROUTE) {
+                        MetronomeScreen(onBack = { navController.popBackStack() })
+                    }
+                    composable(TUNER_ROUTE) {
+                        TunerScreen(onBack = { navController.popBackStack() })
+                    }
+                    composable(
+                        route = CARDS_ROUTE,
+                        arguments = listOf(navArgument("deckId") { type = NavType.StringType }),
+                    ) { entry ->
+                        val deck =
+                            CardDeck.fromId(entry.arguments?.getString("deckId").orEmpty())
+                                ?: CardDeck.THEORY
+                        CardsScreen(
+                            deck = deck,
+                            onBack = { navController.popBackStack() },
+                        )
+                    }
+                    composable(
+                        route = PHRASE_ROUTE,
+                        arguments = listOf(navArgument("phraseId") { type = NavType.StringType }),
+                    ) { entry ->
+                        val phraseId = entry.arguments?.getString("phraseId").orEmpty()
+                        PhrasePlayerScreen(
+                            phraseId = phraseId,
+                            onBack = { navController.popBackStack() },
+                        )
+                    }
+                }
             }
-            composable(TopLevelDestination.TOOLS.route) {
-                ToolsScreen(
-                    onOpenMetronome = { navController.navigate(METRONOME_ROUTE) },
-                    onOpenTuner = { navController.navigate(TUNER_ROUTE) },
-                    onOpenCards = { deck -> navController.navigate(cardsRoute(deck)) },
-                )
-            }
-            composable(TopLevelDestination.PHRASES.route) {
-                PhrasesScreen(onOpenPhrase = { phraseId -> navController.navigate(phraseRoute(phraseId)) })
-            }
-            composable(TopLevelDestination.PROFILE.route) { ProfileScreen() }
-            composable(METRONOME_ROUTE) {
-                MetronomeScreen(onBack = { navController.popBackStack() })
-            }
-            composable(TUNER_ROUTE) {
-                TunerScreen(onBack = { navController.popBackStack() })
-            }
-            composable(
-                route = CARDS_ROUTE,
-                arguments = listOf(navArgument("deckId") { type = NavType.StringType }),
-            ) { entry ->
-                val deck =
-                    CardDeck.fromId(entry.arguments?.getString("deckId").orEmpty())
-                        ?: CardDeck.THEORY
-                CardsScreen(
-                    deck = deck,
-                    onBack = { navController.popBackStack() },
-                )
-            }
-            composable(
-                route = PHRASE_ROUTE,
-                arguments = listOf(navArgument("phraseId") { type = NavType.StringType }),
-            ) { entry ->
-                val phraseId = entry.arguments?.getString("phraseId").orEmpty()
-                PhrasePlayerScreen(
-                    phraseId = phraseId,
-                    onBack = { navController.popBackStack() },
-                )
-            }
+        }
+    }
+}
+
+@Composable
+private fun GuitarDojoRail(
+    currentRoute: String?,
+    onNavigate: (TopLevelDestination) -> Unit,
+) {
+    NavigationRail(containerColor = MaterialTheme.colorScheme.surface) {
+        TopLevelDestination.entries.forEach { destination ->
+            val selected = currentRoute == destination.route
+            NavigationRailItem(
+                selected = selected,
+                onClick = { onNavigate(destination) },
+                icon = {
+                    Icon(
+                        imageVector = if (selected) destination.selectedIcon else destination.unselectedIcon,
+                        contentDescription = destination.label,
+                    )
+                },
+                label = { Text(destination.label) },
+            )
         }
     }
 }

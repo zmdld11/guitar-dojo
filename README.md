@@ -87,6 +87,8 @@ adb push local_phrases/song.json \
   /sdcard/Android/data/dev.zmdld11.guitardojo/files/phrases/song.json
 ```
 
+> 没有现成 .gp 时，可自行在浏览器用下载工具（如 songsterr-downloader）把目标曲保存为 .gp 再走上面的流程。本项目不内置任何抓取工具。
+
 - 格式说明见 [docs/M3-乐句库设计.md](docs/M3-乐句库设计.md)；加载时会校验小节连续性、弦品与音高一致性，失败会指出第几个音。
 - `local_phrases/` 与 `data/` 都已加入 `.gitignore`，不要提交任何转换产物或参考书扫描件。
 
