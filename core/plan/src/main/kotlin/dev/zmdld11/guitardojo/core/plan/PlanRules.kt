@@ -31,4 +31,12 @@ data class PlanRules(
     val startSpeedRatio: Double = 0.50,
     /** 热身/主练默认循环小节长度。 */
     val loopBarCount: Int = 2,
+    /** 考核判「干净」需要的最低音准得分（0-1）。 */
+    val assessCleanAccuracyMin: Double = 0.90,
+    /** 考核判「干净」需要的最低节奏得分（0-1）。 */
+    val assessCleanRhythmMin: Double = 0.85,
+    /** 考核判「轻松」需要的最低音准得分。 */
+    val assessEasyAccuracyMin: Double = 0.95,
+    /** 考核判「轻松」需要的最低节奏得分。 */
+    val assessEasyRhythmMin: Double = 0.90,
 )
