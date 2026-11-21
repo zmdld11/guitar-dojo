@@ -38,6 +38,7 @@ import dev.zmdld11.guitardojo.core.plan.AttemptKind
 import dev.zmdld11.guitardojo.core.plan.DayKind
 import dev.zmdld11.guitardojo.core.plan.SelfRating
 import dev.zmdld11.guitardojo.data.training.AttemptEntity
+import dev.zmdld11.guitardojo.data.training.isValidSession
 import dev.zmdld11.guitardojo.data.training.TrainingDayEntity
 import java.time.LocalDate
 import java.time.YearMonth
@@ -181,7 +182,7 @@ private fun DayCell(
     onSelect: (Long?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val finished = entity?.finishedAtMillis != null
+    val finished = entity != null && entity.finishedAtMillis != null && isValidSession(entity)
     val dayNumber = if (epochDay > 0) LocalDate.ofEpochDay(epochDay).dayOfMonth.toString() else ""
     Box(
         modifier =

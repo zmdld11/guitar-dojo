@@ -1,6 +1,7 @@
 package dev.zmdld11.guitardojo.ui.screens
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dev.zmdld11.guitardojo.core.phrase.Phrase
@@ -61,6 +62,7 @@ class SessionViewModel(
         stepIndex: Int,
         result: StepResult,
     ) {
+        Log.d("SessionStep", "completeStep step=$stepIndex result=$result")
         viewModelScope.launch {
             planRepository.completeStep(LocalDate.now().toEpochDay(), stepIndex, result)
             refresh()

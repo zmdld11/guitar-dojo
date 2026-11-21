@@ -160,6 +160,7 @@ class TunerViewModel(
                     guidedDone = guidedTarget == null
                     guidedInTune = !guidedDone
                     guidedInTuneSinceMillis = 0L
+                    Log.d("GuidedTune", "advance from ${guided.noteLabel} done=$guidedDone")
                 }
             } else {
                 guidedInTuneSinceMillis = 0L

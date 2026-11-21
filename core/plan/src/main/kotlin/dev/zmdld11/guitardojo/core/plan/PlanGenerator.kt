@@ -38,7 +38,7 @@ class PlanGenerator(
     ): List<PlanTask> {
         val tier = SessionTier.forMinutes(input.profile.minutesPerDay)
         val tasks = mutableListOf<PlanTask>()
-        tasks += PlanTask.Tune(reason = "先调音，再练手；跳过会记为未调音")
+        tasks += PlanTask.Tune(reason = "先调音，再练手；不调音会记为未调音")
         val main = selector.selectMain(input, warnings)
         tasks +=
             PlanTask.Setup(

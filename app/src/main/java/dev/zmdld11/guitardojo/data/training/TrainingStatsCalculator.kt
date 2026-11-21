@@ -38,9 +38,6 @@ class TrainingStatsCalculator(
             )
         }
 
-    private fun isValidSession(entity: TrainingDayEntity): Boolean =
-        entity.kind == DayKind.NO_GUITAR.name || entity.practiceSeconds >= VALID_SESSION_SECONDS
-
     private fun countStreak(
         today: Long,
         finishedDays: Set<Long>,
@@ -53,8 +50,10 @@ class TrainingStatsCalculator(
         }
         return streak
     }
-
-    private companion object {
-        const val VALID_SESSION_SECONDS = 5L * 60
-    }
 }
+
+/** 打卡口径统一在这里：琴上日 ≥5 分钟有效练习，无琴日完成即算。 */
+internal fun isValidSession(entity: TrainingDayEntity): Boolean =
+    entity.kind == DayKind.NO_GUITAR.name || entity.practiceSeconds >= VALID_SESSION_SECONDS
+
+private const val VALID_SESSION_SECONDS = 5L * 60

@@ -96,7 +96,7 @@ internal fun TuneStep(
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(onClick = { onComplete(stepIndex, StepResult.TuneDone(passed = false)) }) {
-                Text("跳过调音")
+                Text("先不调音")
             }
         }
     }
