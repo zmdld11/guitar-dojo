@@ -53,10 +53,14 @@ import kotlin.math.roundToInt
 fun PhrasePlayerScreen(
     phraseId: String,
     onBack: () -> Unit,
+    initialSpeed: Double? = null,
+    initialLoopBars: IntRange? = null,
 ) {
     val application = LocalContext.current.applicationContext as Application
     val viewModel: PhrasePlayerViewModel =
-        viewModel(key = phraseId) { PhrasePlayerViewModel(application, phraseId) }
+        viewModel(key = phraseId) {
+            PhrasePlayerViewModel(application, phraseId, initialSpeed, initialLoopBars)
+        }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(

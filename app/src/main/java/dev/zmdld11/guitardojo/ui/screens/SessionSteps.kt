@@ -18,6 +18,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,34 +26,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import dev.zmdld11.guitardojo.core.plan.AmpPreset
 import dev.zmdld11.guitardojo.core.plan.AttemptKind
 import dev.zmdld11.guitardojo.core.plan.PlanTask
 import dev.zmdld11.guitardojo.core.plan.SelfRating
 import dev.zmdld11.guitardojo.core.phrase.Phrase
+import dev.zmdld11.guitardojo.data.cards.BuiltInCards
 import dev.zmdld11.guitardojo.data.cards.CardDeck
 import dev.zmdld11.guitardojo.data.training.StepResult
 import dev.zmdld11.guitardojo.ui.screens.session.ampPresetLabel
+import dev.zmdld11.guitardojo.ui.screens.session.inRestWindow
+import dev.zmdld11.guitardojo.ui.screens.session.practiceTimerText
 import dev.zmdld11.guitardojo.ui.screens.session.taskLabel
-
-@Composable
-internal fun TuneStep(
-    task: PlanTask.Tune,
-    stepIndex: Int,
-    onComplete: (Int, StepResult) -> Unit,
-) {
-    TaskCard(title = "调音") {
-        StepReason(task.reason)
-        Spacer(Modifier.height(16.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = { onComplete(stepIndex, StepResult.TuneDone(passed = true)) }) {
-                Text("完成调音")
-            }
-            OutlinedButton(onClick = { onComplete(stepIndex, StepResult.TuneDone(passed = false)) }) {
-                Text("跳过")
-            }
-        }
-    }
-}
 
 @Composable
 internal fun SetupStep(
@@ -60,8 +46,27 @@ internal fun SetupStep(
     stepIndex: Int,
     onComplete: (Int, StepResult) -> Unit,
 ) {
+    val card =
+        remember(task.ampPreset) {
+            val wanted = if (task.ampPreset == AmpPreset.CLEAN) "setup.clean" else "setup.dirty"
+            BuiltInCards.byDeck(CardDeck.SETUP).firstOrNull { it.id == wanted }
+        }
     TaskCard(title = "设备 · ${ampPresetLabel(task.ampPreset)}") {
         StepReason(task.reason)
+        if (card != null) {
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = card.prompt,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = card.answer,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
         Spacer(Modifier.height(16.dp))
         Button(onClick = { onComplete(stepIndex, StepResult.Simple) }) {
             Text("完成")
@@ -80,7 +85,7 @@ internal fun PracticeLikeStep(
     blocks: Int,
     enteredAt: Long,
     onComplete: (Int, StepResult) -> Unit,
-    onStartPhrase: (String) -> Unit,
+    onStartPhrase: (phraseId: String, speed: Double?, loopBars: IntRange?) -> Unit,
 ) {
     val phraseId =
         when (task) {
@@ -88,6 +93,19 @@ internal fun PracticeLikeStep(
             is PlanTask.Practice -> task.phraseId
             else -> ""
         }
+    val taskSpeed =
+        when (task) {
+            is PlanTask.Warmup -> task.speed
+            is PlanTask.Practice -> task.speed
+            else -> null
+        }
+    var elapsedSeconds by remember(stepIndex) { mutableStateOf(0L) }
+    LaunchedEffect(stepIndex) {
+        while (true) {
+            delay(1_000)
+            elapsedSeconds += 1
+        }
+    }
     TaskCard(title = taskLabel(task)) {
         StepReason(task.reason)
         Spacer(Modifier.height(8.dp))
@@ -102,10 +120,21 @@ internal fun PracticeLikeStep(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = practiceTimerText(elapsedSeconds, blocks),
+            style = MaterialTheme.typography.bodyMedium,
+            color =
+                if (inRestWindow(elapsedSeconds, blocks)) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+        )
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(
-                onClick = { onStartPhrase(phraseId) },
+                onClick = { onStartPhrase(phraseId, taskSpeed, loopStartBar..(loopStartBar + loopBarCount - 1)) },
                 enabled = phraseId.isNotEmpty(),
             ) {
                 Text("打开播放器")
@@ -288,7 +317,7 @@ internal fun SimpleStep(
 }
 
 @Composable
-private fun TaskCard(
+internal fun TaskCard(
     title: String,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -309,7 +338,7 @@ private fun TaskCard(
 }
 
 @Composable
-private fun StepReason(reason: String) {
+internal fun StepReason(reason: String) {
     Text(
         text = reason,
         style = MaterialTheme.typography.bodyMedium,

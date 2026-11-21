@@ -34,6 +34,10 @@ data class TunerUiState(
     val matchedString: GuitarString? = null,
     val history: List<String> = emptyList(),
     val message: String? = null,
+    /** 向导调音：当前要求调的弦；null 表示自由模式。顺序 6→1。 */
+    val guidedTarget: GuitarString? = null,
+    val guidedInTune: Boolean = false,
+    val guidedDone: Boolean = false,
 )
 
 class TunerViewModel(
@@ -49,6 +53,9 @@ class TunerViewModel(
     @Volatile
     private var lastSignalAtMillis: Long = 0L
 
+    @Volatile
+    private var guidedInTuneSinceMillis: Long = 0L
+
     private var lastHistoryLabel: String? = null
     private var lastProbeLogAtMillis: Long = 0L
 
@@ -57,6 +64,32 @@ class TunerViewModel(
         tracker.reset()
         lastHistoryLabel = null
         _uiState.update { it.copy(mode = mode, note = null, matchedString = null, history = emptyList()) }
+    }
+
+    /** 训练向导用：从 6 弦开始依次调音，每根弦稳定准了自动进入下一根。 */
+    fun startGuidedTuning() {
+        guidedInTuneSinceMillis = 0L
+        tracker.reset()
+        lastHistoryLabel = null
+        _uiState.update {
+            it.copy(
+                mode = TunerMode.GUITAR,
+                guidedTarget = GuitarTuning.standard.first(),
+                guidedDone = false,
+                guidedInTune = false,
+                note = null,
+                matchedString = null,
+                history = emptyList(),
+                message = null,
+            )
+        }
+        start()
+    }
+
+    fun stopGuidedTuning() {
+        guidedInTuneSinceMillis = 0L
+        _uiState.update { it.copy(guidedTarget = null, guidedInTune = false, guidedDone = false) }
+        stop()
     }
 
     fun start() {
@@ -112,11 +145,35 @@ class TunerViewModel(
                 state.history
             }
 
+        var guidedInTune = false
+        var guidedTarget = state.guidedTarget
+        var guidedDone = state.guidedDone
+        val guided = state.guidedTarget
+        if (guided != null) {
+            val cents = NoteNaming.centsBetween(guided.targetFrequencyHz(), note.frequencyHz)
+            guidedInTune = kotlin.math.abs(cents) <= GUIDED_TOLERANCE_CENTS
+            if (guidedInTune) {
+                if (guidedInTuneSinceMillis == 0L) guidedInTuneSinceMillis = now
+                if (now - guidedInTuneSinceMillis >= GUIDED_HOLD_MILLIS) {
+                    val index = GuitarTuning.standard.indexOf(guided)
+                    guidedTarget = GuitarTuning.standard.getOrNull(index + 1)
+                    guidedDone = guidedTarget == null
+                    guidedInTune = !guidedDone
+                    guidedInTuneSinceMillis = 0L
+                }
+            } else {
+                guidedInTuneSinceMillis = 0L
+            }
+        }
+
         _uiState.update {
             it.copy(
                 note = note,
                 matchedString = matched,
                 history = history,
+                guidedTarget = guidedTarget,
+                guidedInTune = guidedInTune,
+                guidedDone = guidedDone,
                 message = null,
             )
         }
@@ -161,5 +218,7 @@ class TunerViewModel(
         const val STALE_SIGNAL_MILLIS = 600L
         const val MAX_HISTORY = 12
         const val PROBE_LOG_INTERVAL_MILLIS = 80L
+        const val GUIDED_TOLERANCE_CENTS = 5.0
+        const val GUIDED_HOLD_MILLIS = 600L
     }
 }

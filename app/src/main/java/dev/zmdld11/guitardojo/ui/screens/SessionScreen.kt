@@ -38,7 +38,7 @@ import dev.zmdld11.guitardojo.ui.screens.session.taskLabel
 @Composable
 fun SessionScreen(
     onBack: () -> Unit,
-    onStartPhrase: (String) -> Unit,
+    onStartPhrase: (phraseId: String, speed: Double?, loopBars: IntRange?) -> Unit,
     onOpenCardDeck: (CardDeck) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -130,7 +130,7 @@ private fun TaskContent(
     phrase: Phrase?,
     enteredAt: Long,
     onComplete: (Int, StepResult) -> Unit,
-    onStartPhrase: (String) -> Unit,
+    onStartPhrase: (phraseId: String, speed: Double?, loopBars: IntRange?) -> Unit,
     onOpenCardDeck: (CardDeck) -> Unit,
 ) {
     when (task) {

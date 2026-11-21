@@ -46,12 +46,28 @@ private const val PAGE_SLIDE_MILLIS = 240
 
 private const val METRONOME_ROUTE = "metronome"
 private const val TUNER_ROUTE = "tuner"
-private const val PHRASE_ROUTE = "phrase/{phraseId}"
+private const val PHRASE_ROUTE = "phrase/{phraseId}?speed={speed}&loopStart={loopStart}&loopEnd={loopEnd}"
 private const val CARDS_ROUTE = "cards/{deckId}"
 private const val SESSION_ROUTE = "session"
 private const val CALENDAR_ROUTE = "calendar"
 
-private fun phraseRoute(phraseId: String): String = "phrase/$phraseId"
+/** speed/loopStart/loopEnd 为可选预置：训练向导跳进来时按引擎给的速度与循环区间打开播放器。 */
+private fun phraseRoute(
+    phraseId: String,
+    speed: Double? = null,
+    loopBars: IntRange? = null,
+): String =
+    buildString {
+        append("phrase/")
+        append(android.net.Uri.encode(phraseId))
+        val params = mutableListOf<String>()
+        speed?.let { params += "speed=$it" }
+        loopBars?.let {
+            params += "loopStart=${it.first}"
+            params += "loopEnd=${it.last}"
+        }
+        if (params.isNotEmpty()) append("?").append(params.joinToString("&"))
+    }
 
 private fun cardsRoute(deck: CardDeck): String = "cards/${deck.id}"
 
@@ -128,7 +144,9 @@ fun GuitarDojoApp() {
                     composable(SESSION_ROUTE) {
                         SessionScreen(
                             onBack = { navController.popBackStack() },
-                            onStartPhrase = { phraseId -> navController.navigate(phraseRoute(phraseId)) },
+                            onStartPhrase = { phraseId, speed, loopBars ->
+                                navController.navigate(phraseRoute(phraseId, speed, loopBars))
+                            },
                             onOpenCardDeck = { deck -> navController.navigate(cardsRoute(deck)) },
                         )
                     }
@@ -149,12 +167,31 @@ fun GuitarDojoApp() {
                     }
                     composable(
                         route = PHRASE_ROUTE,
-                        arguments = listOf(navArgument("phraseId") { type = NavType.StringType }),
+                        arguments = listOf(
+                            navArgument("phraseId") { type = NavType.StringType },
+                            navArgument("speed") {
+                                type = NavType.StringType
+                                defaultValue = ""
+                            },
+                            navArgument("loopStart") {
+                                type = NavType.IntType
+                                defaultValue = -1
+                            },
+                            navArgument("loopEnd") {
+                                type = NavType.IntType
+                                defaultValue = -1
+                            },
+                        ),
                     ) { entry ->
                         val phraseId = entry.arguments?.getString("phraseId").orEmpty()
+                        val speed = entry.arguments?.getString("speed").orEmpty().toDoubleOrNull()
+                        val loopStart = entry.arguments?.getInt("loopStart")?.takeIf { it >= 0 }
+                        val loopEnd = entry.arguments?.getInt("loopEnd")?.takeIf { it >= 0 }
                         PhrasePlayerScreen(
                             phraseId = phraseId,
                             onBack = { navController.popBackStack() },
+                            initialSpeed = speed,
+                            initialLoopBars = if (loopStart != null && loopEnd != null) loopStart..loopEnd else null,
                         )
                     }
                 }

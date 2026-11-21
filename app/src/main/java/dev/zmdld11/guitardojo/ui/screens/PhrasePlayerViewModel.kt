@@ -35,12 +35,18 @@ data class PhrasePlayerUiState(
 class PhrasePlayerViewModel(
     application: Application,
     private val phraseId: String,
+    initialSpeed: Double? = null,
+    initialLoopBars: IntRange? = null,
 ) : AndroidViewModel(application) {
     private val repository = PhraseRepository(application)
     private val engine = PracticeEngine()
     private val timbrePreference = TimbrePreference(application)
+    /** 训练向导预置的速度与循环区间；用户在页面上仍可调整。 */
+    private val presetSpeed = initialSpeed?.coerceIn(MIN_SPEED, MAX_SPEED)
+    private val presetLoop = initialLoopBars
 
-    private val _uiState = MutableStateFlow(PhrasePlayerUiState())
+    private val _uiState =
+        MutableStateFlow(PhrasePlayerUiState(speed = presetSpeed ?: 1.0))
     val uiState: StateFlow<PhrasePlayerUiState> = _uiState.asStateFlow()
 
     init {
@@ -177,19 +183,22 @@ class PhrasePlayerViewModel(
             _uiState.update { it.copy(isLoading = false, error = "找不到乐句：$phraseId") }
             return
         }
-        _uiState.update {
-            it.copy(
-                isLoading = false,
-                phrase = phrase,
-                currentBar = 0,
-                currentNoteIndex = firstNoteIndex(it.copy(phrase = phrase)),
-            )
+        _uiState.update { current ->
+            val withPreset =
+                current.copy(
+                    isLoading = false,
+                    phrase = phrase,
+                    loopStartBar = presetLoop?.first,
+                    loopEndBar = presetLoop?.last,
+                    currentBar = presetLoop?.first ?: 0,
+                )
+            withPreset.copy(currentNoteIndex = firstNoteIndex(withPreset))
         }
         engine.setPhrase(
             phrase = phrase,
             speed = _uiState.value.speed,
-            loopStartBar = null,
-            loopEndBar = null,
+            loopStartBar = presetLoop?.first,
+            loopEndBar = presetLoop?.last,
             clickEnabled = _uiState.value.clickEnabled,
         )
     }
