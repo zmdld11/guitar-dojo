@@ -2,7 +2,9 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。版本号对应的里程碑见 [docs/ROADMAP.md](docs/ROADMAP.md)。
 
-## [Unreleased]
+## [0.4.0] - 2026-11-21
+
+M4 每日训练流（计划引擎、训练向导、打卡记录），以及音色、谱面与界面的一批打磨。
 
 ### 新增
 
