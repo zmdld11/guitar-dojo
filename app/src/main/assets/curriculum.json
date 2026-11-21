@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "builtin.curriculum.starter",
+  "title": "入门 4 周",
+  "weeks": [
+    {
+      "index": 1,
+      "focus": "左手独立与 1-2-3-4 指序",
+      "phraseIds": ["builtin.chromatic.basic", "builtin.scale.c-major"],
+      "targetBpm": 80,
+      "theoryCardIds": ["theory.string-names", "theory.time-4-4"]
+    },
+    {
+      "index": 2,
+      "focus": "反向与跨弦",
+      "phraseIds": ["builtin.chromatic.reverse", "builtin.scale.g-major"],
+      "targetBpm": 88,
+      "theoryCardIds": ["theory.note-values", "theory.chromatic"]
+    },
+    {
+      "index": 3,
+      "focus": "三连音与五声",
+      "phraseIds": ["builtin.chromatic.triplet", "builtin.scale.a-minor-pentatonic"],
+      "targetBpm": 92,
+      "theoryCardIds": ["theory.minor-pentatonic", "theory.time-6-8"]
+    },
+    {
+      "index": 4,
+      "focus": "应用：riff 与旋律",
+      "phraseIds": ["builtin.riff.e5-power", "builtin.melody.first-light"],
+      "targetBpm": 90,
+      "theoryCardIds": ["theory.power-chord", "theory.dotted-note"]
+    }
+  ]
+}

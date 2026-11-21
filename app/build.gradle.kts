@@ -51,6 +51,7 @@ android {
 dependencies {
     implementation(project(":core:audio"))
     implementation(project(":core:phrase"))
+    implementation(project(":core:plan"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
