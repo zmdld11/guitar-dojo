@@ -163,7 +163,7 @@ private fun TaskContent(
                 onStartPhrase = onStartPhrase,
             )
         is PlanTask.Review ->
-            AssessStep(
+            AssessBranch(
                 task = task,
                 stepIndex = stepIndex,
                 phrase = phrase,
@@ -172,7 +172,7 @@ private fun TaskContent(
                 onComplete = onComplete,
             )
         is PlanTask.Assess ->
-            AssessStep(
+            AssessBranch(
                 task = task,
                 stepIndex = stepIndex,
                 phrase = phrase,

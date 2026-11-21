@@ -50,6 +50,16 @@ data class Phrase(
 
     val hasLoopableBars: Boolean get() = bars.isNotEmpty()
 
+    /** 全部音符都是单音（同一时刻只有一个音）；考核自动判定只支持单音乐句。 */
+    val isMonophonic: Boolean
+        get() {
+            val seenTicks = HashSet<Long>()
+            for (note in notes) {
+                if (!seenTicks.add(note.tick)) return false
+            }
+            return true
+        }
+
     fun barAt(tick: Long): PhraseBar? = bars.firstOrNull { tick >= it.startTick && tick < it.startTick + it.lengthTicks }
 
     fun barOrNull(index: Int): PhraseBar? = bars.getOrNull(index)
