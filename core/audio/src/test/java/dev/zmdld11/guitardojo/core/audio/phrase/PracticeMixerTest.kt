@@ -101,6 +101,28 @@ class PracticeMixerTest {
         assertTrue(out.all { it.toInt() == 0 })
     }
 
+    @Test
+    fun `静音乐句时不渲染音符与音符脉冲`() {
+        val muted = PracticeMixer(48_000)
+        muted.phraseMuted = true
+        muted.startPlan(plan(notes = listOf(Planned(startFrame = 10))))
+        val mutedOut = ShortArray(256)
+        val mutedPulses = ArrayList<PracticeNotePulse>()
+        muted.render(mutedOut, ArrayList(), mutedPulses)
+
+        assertTrue(mutedPulses.isEmpty())
+        assertTrue(mutedOut.all { it == 0.toShort() })
+
+        val audible = PracticeMixer(48_000)
+        audible.startPlan(plan(notes = listOf(Planned(startFrame = 10, phraseIndex = 0))))
+        val audibleOut = ShortArray(256)
+        val audiblePulses = ArrayList<PracticeNotePulse>()
+        audible.render(audibleOut, ArrayList(), audiblePulses)
+
+        assertTrue(audiblePulses.isNotEmpty())
+        assertTrue(audibleOut.any { it != 0.toShort() })
+    }
+
     private data class Planned(
         val startFrame: Long,
         val midi: Int = 40,

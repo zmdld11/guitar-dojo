@@ -14,6 +14,12 @@ class PracticeMixer(
     /** 当前音色；热切换由 [requestTimbre] 排队，在音频线程内生效。 */
     var timbre: PhraseTimbre = initialTimbre
         private set
+
+    /**
+     * 考核专用：只渲染拍点与脉冲，不渲染乐句音符。
+     * 考核时麦克风要听用户的琴，扬声器里的示范音会被当成演奏误判。
+     */
+    var phraseMuted = false
     private var voices: Array<PhraseVoice> = Array(MAX_VOICES) { timbre.createVoice(sampleRate) }
     private val clickVoices = Array(MAX_CLICK_VOICES) { ClickVoice() }
     private var effects = PhraseEffects(sampleRate, timbre)
@@ -166,7 +172,7 @@ class PracticeMixer(
         while (noteCursor < activePlan.notes.size) {
             val note = activePlan.notes[noteCursor]
             if (note.startFrame >= sectionEnd) break
-            if (note.startFrame >= sectionStart) {
+            if (note.startFrame >= sectionStart && !phraseMuted) {
                 // 同一帧上的多个音按顺序错开几毫秒，模仿扫弦；否则和弦会像机关枪一样齐响
                 strumIndex = if (note.startFrame == lastAttackFrame) strumIndex + 1 else 0
                 lastAttackFrame = note.startFrame

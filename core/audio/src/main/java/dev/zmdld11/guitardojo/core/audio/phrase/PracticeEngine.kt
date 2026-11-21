@@ -55,6 +55,9 @@ class PracticeEngine(
     private var desiredClickEnabled: Boolean = true
 
     @Volatile
+    private var desiredPhraseMuted: Boolean = false
+
+    @Volatile
     private var desiredTimbre: PhraseTimbre = PhraseTimbre.DEFAULT
 
     @Volatile
@@ -84,12 +87,15 @@ class PracticeEngine(
         loopStartBar: Int? = null,
         loopEndBar: Int? = null,
         clickEnabled: Boolean = true,
+        /** 考核模式：只放拍点，乐句音符不渲染。 */
+        phraseMuted: Boolean = false,
     ) {
         desiredPhrase = phrase
         desiredSpeed = speed.coerceIn(PhraseScheduler.MIN_SPEED, PhraseScheduler.MAX_SPEED)
         desiredLoopStart = loopStartBar
         desiredLoopEnd = loopEndBar
         desiredClickEnabled = clickEnabled
+        desiredPhraseMuted = phraseMuted
         configDirty.set(true)
     }
 
@@ -211,6 +217,7 @@ class PracticeEngine(
     ): AppliedConfig? {
         if (!configDirty.getAndSet(false)) return null
         val phrase = desiredPhrase ?: return null
+        mixer.phraseMuted = desiredPhraseMuted
         val newPlan =
             PhraseScheduler.plan(
                 phrase = phrase,
