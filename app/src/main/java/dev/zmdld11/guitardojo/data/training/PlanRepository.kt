@@ -1,6 +1,7 @@
 package dev.zmdld11.guitardojo.data.training
 
 import android.content.Context
+import dev.zmdld11.guitardojo.core.plan.AssessPolicy
 import dev.zmdld11.guitardojo.core.plan.AttemptKind
 import dev.zmdld11.guitardojo.core.plan.AttemptRecord
 import dev.zmdld11.guitardojo.core.plan.Curriculum
@@ -31,7 +32,10 @@ sealed interface StepResult {
         val seconds: Long,
     ) : StepResult
 
-    /** 考核/复习跟弹后的自评结果；stopped 表示中途停过（视为不干净）。 */
+    /**
+     * 考核/复习的结果；stopped 表示中途停过（一票否决）。
+     * accuracy/rhythm 是跟弹评分（0-1）；为 null 时（和弦乐句等）沿用 [rating] 自评。
+     */
     data class Assessed(
         val phraseId: String,
         val kind: AttemptKind,
@@ -39,6 +43,8 @@ sealed interface StepResult {
         val phraseTempoBpm: Double,
         val stopped: Boolean,
         val rating: SelfRating,
+        val accuracy: Double? = null,
+        val rhythm: Double? = null,
     ) : StepResult
 
     /** 卡片看完后的自评。 */
@@ -222,19 +228,38 @@ class PlanRepository(
     ) {
         val entity = db.phraseProgressDao().get(result.phraseId)
         val base = entity?.toModel() ?: engine.initialProgress(result.phraseId, result.phraseTempoBpm)
+        val scored = result.accuracy != null && result.rhythm != null
+        val outcome =
+            if (scored) {
+                AssessPolicy.evaluate(
+                    accuracy = result.accuracy ?: 0.0,
+                    rhythm = result.rhythm ?: 0.0,
+                    stopped = result.stopped,
+                    bpm = result.bpm,
+                    targetBpm = result.phraseTempoBpm,
+                )
+            } else {
+                null
+            }
         val attempt =
             AttemptRecord(
                 phraseId = result.phraseId,
                 epochDay = today,
                 kind = result.kind,
                 bpm = result.bpm,
-                clean = !result.stopped,
-                selfRating = result.rating,
-                reachedTargetSpeed = !result.stopped,
+                clean = outcome?.clean ?: !result.stopped,
+                selfRating = outcome?.selfRating ?: result.rating,
+                reachedTargetSpeed = outcome?.reachedTargetSpeed ?: !result.stopped,
                 tuningPassed = tuningPassed,
             )
         db.phraseProgressDao().upsert(engine.apply(base, attempt).toEntity())
-        db.attemptDao().insert(attempt.toEntity(tuningPassed))
+        db.attemptDao().insert(
+            attempt.toEntity(
+                tuningPassed = tuningPassed,
+                scoreAccuracy = result.accuracy,
+                scoreRhythm = result.rhythm,
+            ),
+        )
     }
 
     private companion object {

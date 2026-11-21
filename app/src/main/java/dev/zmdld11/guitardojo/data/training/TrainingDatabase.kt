@@ -121,7 +121,11 @@ fun AttemptEntity.toModel(): AttemptRecord =
         tuningPassed = tuningPassed,
     )
 
-fun AttemptRecord.toEntity(tuningPassed: Boolean): AttemptEntity =
+fun AttemptRecord.toEntity(
+    tuningPassed: Boolean,
+    scoreAccuracy: Double? = null,
+    scoreRhythm: Double? = null,
+): AttemptEntity =
     AttemptEntity(
         phraseId = phraseId,
         epochDay = epochDay,
@@ -131,6 +135,8 @@ fun AttemptRecord.toEntity(tuningPassed: Boolean): AttemptEntity =
         selfRating = selfRating.name,
         reachedTargetSpeed = reachedTargetSpeed,
         tuningPassed = tuningPassed,
+        scoreAccuracy = scoreAccuracy,
+        scoreRhythm = scoreRhythm,
     )
 
 @Dao

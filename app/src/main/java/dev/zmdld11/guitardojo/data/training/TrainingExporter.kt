@@ -57,6 +57,8 @@ class TrainingExporter(
             put("clean", entity.clean)
             put("selfRating", entity.selfRating)
             put("tuningPassed", entity.tuningPassed)
+            entity.scoreAccuracy?.let { put("scoreAccuracy", it) }
+            entity.scoreRhythm?.let { put("scoreRhythm", it) }
         }
 
     private fun cardJson(progress: CardProgress): JsonObject =

@@ -38,8 +38,8 @@ import dev.zmdld11.guitardojo.core.plan.AttemptKind
 import dev.zmdld11.guitardojo.core.plan.DayKind
 import dev.zmdld11.guitardojo.core.plan.SelfRating
 import dev.zmdld11.guitardojo.data.training.AttemptEntity
-import dev.zmdld11.guitardojo.data.training.isValidSession
 import dev.zmdld11.guitardojo.data.training.TrainingDayEntity
+import dev.zmdld11.guitardojo.data.training.isValidSession
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -278,7 +278,7 @@ private fun AttemptRow(
 ) {
     Text(
         text =
-            listOf(
+            listOfNotNull(
                 if (attempt.kind == AttemptKind.REVIEW.name) "复习" else "考核",
                 phraseTitle,
                 "${attempt.bpm.toInt()} BPM",
@@ -288,6 +288,8 @@ private fun AttemptRow(
                     else -> "吃力"
                 },
                 if (attempt.clean) "干净" else "有停顿",
+                attempt.scoreAccuracy?.let { "音准 ${(it * 100).toInt()}%" },
+                attempt.scoreRhythm?.let { "节奏 ${(it * 100).toInt()}%" },
             ).joinToString(" · "),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
