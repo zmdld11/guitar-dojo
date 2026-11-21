@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -22,23 +23,49 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.zmdld11.guitardojo.core.plan.DayKind
 import dev.zmdld11.guitardojo.data.cards.BuiltInCards
 import dev.zmdld11.guitardojo.data.cards.CardDeck
 import dev.zmdld11.guitardojo.data.cards.CardScheduler
+import dev.zmdld11.guitardojo.data.training.TrainingStats
 import dev.zmdld11.guitardojo.ui.screens.cards.rememberCardProgress
+import dev.zmdld11.guitardojo.ui.screens.session.taskLabel
 import java.time.LocalDate
 
 @Composable
 fun TodayScreen(
     onOpenCards: () -> Unit,
+    onStartSession: () -> Unit,
+    onOpenCalendar: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val viewModel: TodayViewModel = viewModel()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) viewModel.refresh()
+            }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     Column(
         modifier =
             modifier
@@ -59,12 +86,142 @@ fun TodayScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(Modifier.height(24.dp))
-        TodaySessionCard()
+        TodaySessionCard(state = state, onStart = onStartSession)
         Spacer(Modifier.height(16.dp))
-        StatsRow()
-        Spacer(Modifier.height(20.dp))
+        StatsRow(stats = state.stats)
+        Spacer(Modifier.height(4.dp))
+        CalendarEntry(onOpenCalendar = onOpenCalendar)
+        Spacer(Modifier.height(16.dp))
         DailyCardSection(onOpenCards = onOpenCards)
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun TodaySessionCard(
+    state: TodayViewModel.UiState,
+    onStart: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        colors =
+            CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+            ),
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = "今日训练",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            Spacer(Modifier.height(10.dp))
+            when {
+                state.loading -> Text(
+                    text = "读取计划中",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+                state.error != null -> Text(
+                    text = "计划加载失败：${state.error}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+                else -> {
+                    val snapshot = state.snapshot ?: return@Column
+                    val plan = snapshot.plan
+                    val completed = snapshot.completedSteps.size
+                    val total = plan.tasks.size
+                    val currentStep = plan.tasks.getOrNull(snapshot.entity.currentStep)
+                    Text(
+                        text =
+                            if (plan.kind == DayKind.NO_GUITAR) {
+                                "无琴日 · 约 ${plan.estimatedMinutes} 分钟"
+                            } else {
+                                "琴上日 · 约 ${plan.estimatedMinutes} 分钟"
+                            },
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text =
+                            if (completed >= total) {
+                                "今日已完成"
+                            } else {
+                                "第 ${snapshot.entity.currentStep + 1} 步 · ${currentStep?.let(::taskLabel).orEmpty()}"
+                            },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                    if (completed < total && currentStep != null) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = currentStep.reason,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.72f),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    Spacer(Modifier.height(18.dp))
+                    Button(
+                        onClick = onStart,
+                        enabled = completed < total,
+                    ) {
+                        Text(
+                            when {
+                                completed >= total -> "已完成"
+                                completed == 0 -> "开始训练"
+                                else -> "继续训练"
+                            },
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatsRow(
+    stats: TrainingStats?,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        StatChip(value = "${stats?.streakDays ?: 0}", label = "连续天", modifier = Modifier.weight(1f))
+        StatChip(
+            value = "${stats?.weekSessions ?: 0}/${stats?.weekGoal ?: 4}",
+            label = "本周次数",
+            modifier = Modifier.weight(1f),
+        )
+        StatChip(value = "${stats?.totalMinutes ?: 0}", label = "累计分钟", modifier = Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun CalendarEntry(
+    onOpenCalendar: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+    ) {
+        TextButton(onClick = onOpenCalendar) {
+            Icon(
+                imageVector = Icons.Outlined.CalendarMonth,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(Modifier.width(6.dp))
+            Text("打卡日历")
+        }
     }
 }
 
@@ -118,48 +275,6 @@ private fun DailyCardSection(onOpenCards: () -> Unit) {
                 color = MaterialTheme.colorScheme.primary,
             )
         }
-    }
-}
-
-@Composable
-private fun TodaySessionCard(modifier: Modifier = Modifier) {
-    ElevatedCard(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors =
-            CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-            ),
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Text(
-                text = "今日训练",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-            Spacer(Modifier.height(10.dp))
-            Text(
-                text = "训练流开发中",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-            Spacer(Modifier.height(18.dp))
-            Button(onClick = {}, enabled = false) {
-                Text("开始训练")
-            }
-        }
-    }
-}
-
-@Composable
-private fun StatsRow(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        StatChip(value = "0", label = "连续天", modifier = Modifier.weight(1f))
-        StatChip(value = "0", label = "本周次数", modifier = Modifier.weight(1f))
-        StatChip(value = "0", label = "累计分钟", modifier = Modifier.weight(1f))
     }
 }
 

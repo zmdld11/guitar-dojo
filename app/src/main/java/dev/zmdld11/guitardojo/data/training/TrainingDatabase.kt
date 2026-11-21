@@ -30,6 +30,8 @@ data class TrainingDayEntity(
     val practiceSeconds: Long,
     /** 当日调音是否通过；跳过记 false。无琴日恒为 true。 */
     val tuningPassed: Boolean,
+    /** 无琴日「下次要注意什么」的一句记录。 */
+    val note: String,
     val startedAtMillis: Long?,
     val finishedAtMillis: Long?,
 )

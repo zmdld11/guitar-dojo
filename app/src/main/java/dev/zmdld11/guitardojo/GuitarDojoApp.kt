@@ -30,9 +30,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dev.zmdld11.guitardojo.data.cards.CardDeck
 import dev.zmdld11.guitardojo.navigation.TopLevelDestination
+import dev.zmdld11.guitardojo.ui.screens.CalendarScreen
 import dev.zmdld11.guitardojo.ui.screens.PhrasePlayerScreen
 import dev.zmdld11.guitardojo.ui.screens.PhrasesScreen
 import dev.zmdld11.guitardojo.ui.screens.ProfileScreen
+import dev.zmdld11.guitardojo.ui.screens.SessionScreen
 import dev.zmdld11.guitardojo.ui.screens.TodayScreen
 import dev.zmdld11.guitardojo.ui.screens.ToolsScreen
 import dev.zmdld11.guitardojo.ui.screens.cards.CardsScreen
@@ -46,6 +48,8 @@ private const val METRONOME_ROUTE = "metronome"
 private const val TUNER_ROUTE = "tuner"
 private const val PHRASE_ROUTE = "phrase/{phraseId}"
 private const val CARDS_ROUTE = "cards/{deckId}"
+private const val SESSION_ROUTE = "session"
+private const val CALENDAR_ROUTE = "calendar"
 
 private fun phraseRoute(phraseId: String): String = "phrase/$phraseId"
 
@@ -98,7 +102,11 @@ fun GuitarDojoApp() {
                     },
                 ) {
                     composable(TopLevelDestination.TODAY.route) {
-                        TodayScreen(onOpenCards = { navController.navigate(cardsRoute(CardDeck.THEORY)) })
+                        TodayScreen(
+                            onOpenCards = { navController.navigate(cardsRoute(CardDeck.THEORY)) },
+                            onStartSession = { navController.navigate(SESSION_ROUTE) },
+                            onOpenCalendar = { navController.navigate(CALENDAR_ROUTE) },
+                        )
                     }
                     composable(TopLevelDestination.TOOLS.route) {
                         ToolsScreen(
@@ -116,6 +124,16 @@ fun GuitarDojoApp() {
                     }
                     composable(TUNER_ROUTE) {
                         TunerScreen(onBack = { navController.popBackStack() })
+                    }
+                    composable(SESSION_ROUTE) {
+                        SessionScreen(
+                            onBack = { navController.popBackStack() },
+                            onStartPhrase = { phraseId -> navController.navigate(phraseRoute(phraseId)) },
+                            onOpenCardDeck = { deck -> navController.navigate(cardsRoute(deck)) },
+                        )
+                    }
+                    composable(CALENDAR_ROUTE) {
+                        CalendarScreen(onBack = { navController.popBackStack() })
                     }
                     composable(
                         route = CARDS_ROUTE,
