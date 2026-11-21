@@ -24,7 +24,8 @@ object PlanCodec {
     fun decodeCompletedSteps(text: String): List<Int> =
         try {
             json.decodeFromString<List<Int>>(text)
-        } catch (error: IllegalArgumentException) {
+        } catch (ignored: IllegalArgumentException) {
+            // 坏数据按空列表处理，不阻断当天训练
             emptyList()
         }
 
