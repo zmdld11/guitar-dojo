@@ -25,3 +25,4 @@ rootProject.name = "guitar-dojo"
 include(":app")
 include(":core:audio")
 include(":core:phrase")
+include(":core:plan")
