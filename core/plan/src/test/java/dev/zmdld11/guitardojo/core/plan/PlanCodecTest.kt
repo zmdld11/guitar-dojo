@@ -3,6 +3,7 @@ package dev.zmdld11.guitardojo.core.plan
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.time.LocalDate
 
 class PlanCodecTest {
     @Test
@@ -58,7 +59,7 @@ class PlanCodecTest {
 
 /** 测试共用的日期与课程夹具。 */
 object LocalDateFixtures {
-    val SATURDAY: Long = java.time.LocalDate.of(2026, 11, 21).toEpochDay()
+    val SATURDAY: Long = LocalDate.of(2026, 11, 21).toEpochDay()
 
     fun phrases(): Map<String, PhraseInfo> =
         mapOf(
