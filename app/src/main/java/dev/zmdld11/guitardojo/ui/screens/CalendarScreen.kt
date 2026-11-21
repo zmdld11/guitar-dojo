@@ -1,7 +1,6 @@
 package dev.zmdld11.guitardojo.ui.screens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,17 +26,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.ui.text.style.TextAlign
-import dev.zmdld11.guitardojo.core.plan.AttemptKind
-import dev.zmdld11.guitardojo.core.plan.SelfRating
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.zmdld11.guitardojo.core.plan.AttemptKind
 import dev.zmdld11.guitardojo.core.plan.DayKind
+import dev.zmdld11.guitardojo.core.plan.SelfRating
 import dev.zmdld11.guitardojo.data.training.AttemptEntity
 import dev.zmdld11.guitardojo.data.training.TrainingDayEntity
 import java.time.LocalDate
@@ -248,8 +247,14 @@ private fun DayDetail(
                     listOf(
                         "$kindLabel · $status",
                         "练习 ${entity.practiceSeconds / 60} 分钟",
-                        if (entity.kind == DayKind.NO_GUITAR.name) "" else if (entity.tuningPassed) "已调音" else "未调音",
-                        entity.note.takeIf { it.isNotBlank() }?.let { "「${it}」" },
+                        if (entity.kind == DayKind.NO_GUITAR.name) {
+                            ""
+                        } else if (entity.tuningPassed) {
+                            "已调音"
+                        } else {
+                            "未调音"
+                        },
+                        entity.note.takeIf { it.isNotBlank() }?.let { "「$it」" },
                     ).filterNotNull().joinToString(" · "),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

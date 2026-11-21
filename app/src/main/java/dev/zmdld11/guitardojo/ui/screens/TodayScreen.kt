@@ -119,16 +119,18 @@ private fun TodaySessionCard(
             )
             Spacer(Modifier.height(10.dp))
             when {
-                state.loading -> Text(
-                    text = "读取计划中",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
-                state.error != null -> Text(
-                    text = "计划加载失败：${state.error}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
+                state.loading ->
+                    Text(
+                        text = "读取计划中",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                state.error != null ->
+                    Text(
+                        text = "计划加载失败：${state.error}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
                 else -> {
                     val snapshot = state.snapshot ?: return@Column
                     val plan = snapshot.plan

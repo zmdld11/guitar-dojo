@@ -41,6 +41,7 @@ class PhrasePlayerViewModel(
     private val repository = PhraseRepository(application)
     private val engine = PracticeEngine()
     private val timbrePreference = TimbrePreference(application)
+
     /** 训练向导预置的速度与循环区间；用户在页面上仍可调整。 */
     private val presetSpeed = initialSpeed?.coerceIn(MIN_SPEED, MAX_SPEED)
     private val presetLoop = initialLoopBars

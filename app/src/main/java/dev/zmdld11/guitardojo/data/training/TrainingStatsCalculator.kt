@@ -2,9 +2,9 @@ package dev.zmdld11.guitardojo.data.training
 
 import dev.zmdld11.guitardojo.core.plan.DayKind
 import dev.zmdld11.guitardojo.core.plan.TrainingProfile
-import java.time.LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 
 /** 今日页展示用的统计。 */
 data class TrainingStats(

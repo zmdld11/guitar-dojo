@@ -167,24 +167,29 @@ fun GuitarDojoApp() {
                     }
                     composable(
                         route = PHRASE_ROUTE,
-                        arguments = listOf(
-                            navArgument("phraseId") { type = NavType.StringType },
-                            navArgument("speed") {
-                                type = NavType.StringType
-                                defaultValue = ""
-                            },
-                            navArgument("loopStart") {
-                                type = NavType.IntType
-                                defaultValue = -1
-                            },
-                            navArgument("loopEnd") {
-                                type = NavType.IntType
-                                defaultValue = -1
-                            },
-                        ),
+                        arguments =
+                            listOf(
+                                navArgument("phraseId") { type = NavType.StringType },
+                                navArgument("speed") {
+                                    type = NavType.StringType
+                                    defaultValue = ""
+                                },
+                                navArgument("loopStart") {
+                                    type = NavType.IntType
+                                    defaultValue = -1
+                                },
+                                navArgument("loopEnd") {
+                                    type = NavType.IntType
+                                    defaultValue = -1
+                                },
+                            ),
                     ) { entry ->
                         val phraseId = entry.arguments?.getString("phraseId").orEmpty()
-                        val speed = entry.arguments?.getString("speed").orEmpty().toDoubleOrNull()
+                        val speed =
+                            entry.arguments
+                                ?.getString("speed")
+                                .orEmpty()
+                                .toDoubleOrNull()
                         val loopStart = entry.arguments?.getInt("loopStart")?.takeIf { it >= 0 }
                         val loopEnd = entry.arguments?.getInt("loopEnd")?.takeIf { it >= 0 }
                         PhrasePlayerScreen(

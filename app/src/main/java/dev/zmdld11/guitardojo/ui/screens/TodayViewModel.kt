@@ -11,11 +11,11 @@ import dev.zmdld11.guitardojo.data.training.PlanRepository
 import dev.zmdld11.guitardojo.data.training.TrainingDaySnapshot
 import dev.zmdld11.guitardojo.data.training.TrainingStats
 import dev.zmdld11.guitardojo.data.training.buildPhraseInfos
-import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 /** 今日页：读/生成当日计划、打卡统计；ON_RESUME 时刷新。 */
 class TodayViewModel(
@@ -60,6 +60,5 @@ class TodayViewModel(
         return CurriculumSource.load(getApplication()).also { curriculum = it }
     }
 
-    private suspend fun loadPhraseInfos(): Map<String, PhraseInfo> =
-        buildPhraseInfos(phraseRepository.load())
+    private suspend fun loadPhraseInfos(): Map<String, PhraseInfo> = buildPhraseInfos(phraseRepository.load())
 }

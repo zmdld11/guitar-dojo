@@ -3,10 +3,10 @@ package dev.zmdld11.guitardojo
 import dev.zmdld11.guitardojo.core.phrase.PhraseCodec
 import dev.zmdld11.guitardojo.core.plan.CurriculumCodec
 import dev.zmdld11.guitardojo.data.cards.BuiltInCards
-import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 class CurriculumTest {
     @Test

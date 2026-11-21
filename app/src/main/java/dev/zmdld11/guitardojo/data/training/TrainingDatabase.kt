@@ -139,7 +139,10 @@ interface TrainingDayDao {
     suspend fun get(epochDay: Long): TrainingDayEntity?
 
     @Query("SELECT * FROM training_day WHERE epochDay BETWEEN :from AND :to ORDER BY epochDay")
-    suspend fun range(from: Long, to: Long): List<TrainingDayEntity>
+    suspend fun range(
+        from: Long,
+        to: Long,
+    ): List<TrainingDayEntity>
 
     @Query("SELECT * FROM training_day WHERE finishedAtMillis IS NOT NULL ORDER BY epochDay")
     suspend fun finished(): List<TrainingDayEntity>

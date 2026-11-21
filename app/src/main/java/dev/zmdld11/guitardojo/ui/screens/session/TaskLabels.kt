@@ -44,5 +44,4 @@ internal fun practiceTimerText(
 internal fun inRestWindow(
     elapsedSeconds: Long,
     blocks: Int,
-): Boolean =
-    blocks > 1 && elapsedSeconds > 0 && elapsedSeconds % BLOCK_SECONDS < REST_SECONDS && elapsedSeconds / BLOCK_SECONDS < blocks
+): Boolean = blocks > 1 && elapsedSeconds > 0 && elapsedSeconds % BLOCK_SECONDS < REST_SECONDS && elapsedSeconds / BLOCK_SECONDS < blocks

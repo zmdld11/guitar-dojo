@@ -38,8 +38,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import dev.zmdld11.guitardojo.data.training.PlanRepository
-import java.time.LocalDate
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 private val DURATION_OPTIONS = listOf(15, 25, 30, 60)
 private val WEEKDAY_LABELS = listOf("一", "二", "三", "四", "五", "六", "日")

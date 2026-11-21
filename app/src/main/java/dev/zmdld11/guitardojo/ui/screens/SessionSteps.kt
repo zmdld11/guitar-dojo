@@ -26,12 +26,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
+import dev.zmdld11.guitardojo.core.phrase.Phrase
 import dev.zmdld11.guitardojo.core.plan.AmpPreset
 import dev.zmdld11.guitardojo.core.plan.AttemptKind
 import dev.zmdld11.guitardojo.core.plan.PlanTask
 import dev.zmdld11.guitardojo.core.plan.SelfRating
-import dev.zmdld11.guitardojo.core.phrase.Phrase
 import dev.zmdld11.guitardojo.data.cards.BuiltInCards
 import dev.zmdld11.guitardojo.data.cards.CardDeck
 import dev.zmdld11.guitardojo.data.training.StepResult
@@ -39,6 +38,7 @@ import dev.zmdld11.guitardojo.ui.screens.session.ampPresetLabel
 import dev.zmdld11.guitardojo.ui.screens.session.inRestWindow
 import dev.zmdld11.guitardojo.ui.screens.session.practiceTimerText
 import dev.zmdld11.guitardojo.ui.screens.session.taskLabel
+import kotlinx.coroutines.delay
 
 @Composable
 internal fun SetupStep(

@@ -3,21 +3,21 @@ package dev.zmdld11.guitardojo.ui.screens
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zmdld11.guitardojo.core.phrase.Phrase
 import dev.zmdld11.guitardojo.core.plan.Curriculum
 import dev.zmdld11.guitardojo.core.plan.PhraseInfo
 import dev.zmdld11.guitardojo.core.plan.PlanTask
-import dev.zmdld11.guitardojo.core.phrase.Phrase
 import dev.zmdld11.guitardojo.data.PhraseRepository
 import dev.zmdld11.guitardojo.data.training.CurriculumSource
 import dev.zmdld11.guitardojo.data.training.PlanRepository
 import dev.zmdld11.guitardojo.data.training.StepResult
 import dev.zmdld11.guitardojo.data.training.TrainingDaySnapshot
 import dev.zmdld11.guitardojo.data.training.buildPhraseInfos
-import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 /** 训练向导：读当日计划、写步骤完成；每步完成即落库，支持断点续练。 */
 class SessionViewModel(
@@ -86,6 +86,5 @@ class SessionViewModel(
         return CurriculumSource.load(getApplication()).also { curriculum = it }
     }
 
-    private suspend fun loadPhraseInfos(): Map<String, PhraseInfo> =
-        buildPhraseInfos(phraseRepository.load())
+    private suspend fun loadPhraseInfos(): Map<String, PhraseInfo> = buildPhraseInfos(phraseRepository.load())
 }

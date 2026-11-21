@@ -22,10 +22,14 @@ import kotlinx.coroutines.withContext
 /** 一步完成时 App 要写的内容。规则引擎本身不写库；所有写操作都发生在用户完成任务时。 */
 sealed interface StepResult {
     /** 调音完成或跳过。 */
-    data class TuneDone(val passed: Boolean) : StepResult
+    data class TuneDone(
+        val passed: Boolean,
+    ) : StepResult
 
     /** 练习类步骤完成；seconds 是这一步累计的有效练习时长。 */
-    data class PracticeDone(val seconds: Long) : StepResult
+    data class PracticeDone(
+        val seconds: Long,
+    ) : StepResult
 
     /** 考核/复习跟弹后的自评结果；stopped 表示中途停过（视为不干净）。 */
     data class Assessed(
@@ -44,7 +48,9 @@ sealed interface StepResult {
     ) : StepResult
 
     /** 无琴日的一句记录。 */
-    data class NoteSaved(val text: String) : StepResult
+    data class NoteSaved(
+        val text: String,
+    ) : StepResult
 
     /** 只标记完成（设备卡、心理练习、保养清单）。 */
     data object Simple : StepResult
@@ -57,10 +63,6 @@ data class TrainingDaySnapshot(
     val completedSteps: List<Int>,
 )
 
-/**
- * 训练记录仓库：生成当日计划（幂等）、记录步骤完成、写考核结果并更新乐句进度。
- * 计划快照存 plan_json，当天重复进入读现有行；改设置次日生效。
- */
 /** 卡片步骤的读取与写入：今日一卡选择、评卡写回 SharedPreferences。 */
 private class CardStepRecorder(
     private val cardStore: CardProgressStore,
@@ -87,6 +89,10 @@ private class CardStepRecorder(
     }
 }
 
+/**
+ * 训练记录仓库：生成当日计划（幂等）、记录步骤完成、写考核结果并更新乐句进度。
+ * 计划快照存 plan_json，当天重复进入读现有行；改设置次日生效。
+ */
 class PlanRepository(
     context: Context,
     private val db: TrainingDatabase = TrainingDatabase.get(context),

@@ -26,12 +26,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.zmdld11.guitardojo.core.phrase.Phrase
 import dev.zmdld11.guitardojo.core.plan.AttemptKind
 import dev.zmdld11.guitardojo.core.plan.PlanTask
-import dev.zmdld11.guitardojo.core.phrase.Phrase
 import dev.zmdld11.guitardojo.data.cards.CardDeck
 import dev.zmdld11.guitardojo.data.training.StepResult
-import dev.zmdld11.guitardojo.ui.screens.session.ampPresetLabel
 import dev.zmdld11.guitardojo.ui.screens.session.taskLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,10 +68,11 @@ fun SessionScreen(
         ) {
             when {
                 state.loading -> Text("读取计划中", style = MaterialTheme.typography.bodyLarge)
-                state.error != null -> Text(
-                    text = "计划加载失败：${state.error}",
-                    style = MaterialTheme.typography.bodyLarge,
-                )
+                state.error != null ->
+                    Text(
+                        text = "计划加载失败：${state.error}",
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
                 else -> {
                     val snapshot = state.snapshot ?: return@Column
                     val plan = snapshot.plan
