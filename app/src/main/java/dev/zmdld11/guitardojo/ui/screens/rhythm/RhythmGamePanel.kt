@@ -81,7 +81,10 @@ internal fun RhythmGamePanel(
         engine.events.collect { event ->
             when (event) {
                 is RhythmEvent.TileMissed -> verdictText = "滑过去了"
-                RhythmEvent.Failed -> phase = RhythmPhase.RESULT
+                RhythmEvent.Failed -> {
+                    stats = engine.stats()
+                    phase = RhythmPhase.RESULT
+                }
                 RhythmEvent.Finished -> {
                     phase = RhythmPhase.RESULT
                     onFinished?.invoke(engine.stats() ?: return@collect)
