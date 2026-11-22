@@ -167,12 +167,12 @@ sealed interface PlanTask {
         val loopBarCount: Int,
         /** 5 分钟练习块数量，块间提示休息。 */
         val blocks: Int,
-    /** true 表示整段拼接/完整跑（60 分钟档收尾用）。 */
-    val isFullRun: Boolean = false,
-    override val reason: String,
-    /** 当周技术点讲解，来自 curriculum 的 focusNotes；空表示本周无讲解。 */
-    val focusNotes: String = "",
-) : PlanTask
+        /** true 表示整段拼接/完整跑（60 分钟档收尾用）。 */
+        val isFullRun: Boolean = false,
+        override val reason: String,
+        /** 当周技术点讲解，来自 curriculum 的 focusNotes；空表示本周无讲解。 */
+        val focusNotes: String = "",
+    ) : PlanTask
 
     @Serializable
     @SerialName("review")

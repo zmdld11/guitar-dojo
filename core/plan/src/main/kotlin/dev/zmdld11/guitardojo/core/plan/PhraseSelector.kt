@@ -29,9 +29,13 @@ internal data class AssessPick(
     val reason: String,
 )
 
-/** 课程里按周序展开的全部乐句 id。 */
+/** 课程里按周序展开的全部乐句 id；跨周复用句去重。 */
 internal fun curriculumOrder(curriculum: Curriculum): List<String> =
-    curriculum.weeks.sortedBy { it.index }.flatMap { it.phraseIds }.distinct()
+    curriculum
+        .weeks
+        .sortedBy { it.index }
+        .flatMap { it.phraseIds }
+        .distinct()
 
 /**
  * 从课程与历史里挑今天练什么。只读输入，不写任何状态。
