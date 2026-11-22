@@ -29,6 +29,7 @@ python tools/gp2json.py <song.gp>               # 商业谱转本地 JSON（只�
 - `docs/M3-乐句库设计.md` — JSON Schema、GP 转换、播放引擎设计
 - `docs/M4-每日训练流设计.md` — 训练向导、计划规则引擎、Room 记录
 - `docs/训练计划设计.md` — 训练计划的证据依据、速度/掌握/复习规则、卡片系统
+- `docs/教学体系设计.md` — 指法教学规范、乐理卡 v2 设计、教学内容生产管线（B站视频工具链参考）
 - `docs/调研报告.md` — 技术选型依据
 - `docs/画图提示词.md` — 插图清单（用户负责出图，agent 负责集成）
 
