@@ -15,6 +15,7 @@ internal fun taskLabel(task: PlanTask): String =
         is PlanTask.TheoryCard -> "乐理卡"
         is PlanTask.PracticeCard -> "练法卡"
         is PlanTask.MentalPractice -> "心理练习"
+        is PlanTask.RhythmGame -> "节奏"
         is PlanTask.NoteEntry -> "记录"
         is PlanTask.Cooldown -> "收尾"
     }

@@ -75,6 +75,12 @@ class PlanGenerator(
         }
         input.todayPracticeCardId?.let { tasks += PlanTask.PracticeCard(it, "把这张卡的方法用在下次琴上练习") }
         tasks +=
+            PlanTask.RhythmGame(
+                weekIndex = selector.currentCurriculumEntry(input, warnings)?.first?.index,
+                minutes = RHYTHM_MINUTES,
+                reason = "节奏对拍：球转到圆心的瞬间点下去",
+            )
+        tasks +=
             PlanTask.MentalPractice(
                 phraseId = selector.currentCurriculumEntry(input, warnings)?.second,
                 minutes = MENTAL_MINUTES,
@@ -155,7 +161,8 @@ class PlanGenerator(
 
     companion object {
         const val DECK_MAINTENANCE = "maintenance"
-        const val NO_GUITAR_MINUTES = 8
+        const val NO_GUITAR_MINUTES = 10
+        const val RHYTHM_MINUTES = 2
         const val MENTAL_MINUTES = 2
         const val MIN_SPEED = 0.25
         const val MAX_SPEED = 1.5

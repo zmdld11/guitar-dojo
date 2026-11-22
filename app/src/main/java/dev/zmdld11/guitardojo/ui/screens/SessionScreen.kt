@@ -208,6 +208,7 @@ private fun TaskContent(
         is PlanTask.TheoryCard -> CardStep("乐理卡", task.cardId, CardDeck.THEORY, stepIndex, onComplete, onOpenCardDeck)
         is PlanTask.PracticeCard -> CardStep("练法卡", task.cardId, CardDeck.PRACTICE, stepIndex, onComplete, onOpenCardDeck)
         is PlanTask.MentalPractice -> MentalStep(task, stepIndex, phrase, onComplete)
+        is PlanTask.RhythmGame -> RhythmStep(task, stepIndex, onComplete)
         is PlanTask.NoteEntry -> NoteStep(stepIndex, onComplete)
         is PlanTask.Cooldown -> CooldownStep(task, stepIndex, onComplete)
     }

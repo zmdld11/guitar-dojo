@@ -214,6 +214,18 @@ sealed interface PlanTask {
         override val reason: String,
     ) : PlanTask
 
+    /**
+     * 无琴日的节奏对拍小游戏（冰与火之舞式，#33）：球转到圆心的瞬间点屏。
+     * [weekIndex] 来自课程当前周，游戏侧据此挑内置关卡。
+     */
+    @Serializable
+    @SerialName("rhythm_game")
+    data class RhythmGame(
+        val weekIndex: Int?,
+        val minutes: Int,
+        override val reason: String,
+    ) : PlanTask
+
     @Serializable
     @SerialName("note")
     data class NoteEntry(

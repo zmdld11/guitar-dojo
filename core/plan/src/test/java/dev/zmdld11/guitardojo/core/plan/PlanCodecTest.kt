@@ -39,6 +39,28 @@ class PlanCodecTest {
         assertEquals(emptyList<Int>(), PlanCodec.decodeCompletedSteps("not json"))
     }
 
+    @Test
+    fun `节奏游戏任务往返`() {
+        val plan =
+            DailyPlan(
+                dateEpochDay = LocalDateFixtures.SATURDAY,
+                kind = DayKind.NO_GUITAR,
+                minutesPerDay = 10,
+                tasks =
+                    listOf(
+                        PlanTask.TheoryCard("theory.string-names", "今日一卡"),
+                        PlanTask.RhythmGame(weekIndex = 3, minutes = 2, reason = "节奏对拍"),
+                        PlanTask.NoteEntry("写一句下次要注意什么"),
+                    ),
+                estimatedMinutes = 10,
+                warnings = emptyList(),
+            )
+
+        val encoded = PlanCodec.encodePlan(plan)
+        assertEquals(plan, PlanCodec.decodePlan(encoded))
+        assertTrue(encoded.contains("\"rhythm_game\""))
+    }
+
     private companion object {
         const val SNAPSHOT =
             """

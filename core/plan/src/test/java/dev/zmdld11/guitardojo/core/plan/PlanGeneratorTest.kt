@@ -189,7 +189,17 @@ class PlanGeneratorTest {
             )
 
         assertEquals(DayKind.NO_GUITAR, plan.kind)
-        assertEquals(listOf("theory_card", "practice_card", "mental", "note"), plan.tasks.map { kindOf(it) })
+        assertEquals(
+            listOf("theory_card", "practice_card", "rhythm_game", "mental", "note"),
+            plan.tasks.map { kindOf(it) },
+        )
+        assertEquals(
+            1,
+            plan.tasks
+                .filterIsInstance<PlanTask.RhythmGame>()
+                .single()
+                .weekIndex,
+        )
         assertEquals(
             "theory.string-names",
             plan.tasks
@@ -204,7 +214,7 @@ class PlanGeneratorTest {
                 .single()
                 .phraseId,
         )
-        assertEquals(8, plan.estimatedMinutes)
+        assertEquals(10, plan.estimatedMinutes)
         assertTrue(plan.tasks.none { it is PlanTask.Tune || it is PlanTask.Practice })
     }
 
@@ -309,6 +319,7 @@ class PlanGeneratorTest {
             is PlanTask.TheoryCard -> "theory_card"
             is PlanTask.PracticeCard -> "practice_card"
             is PlanTask.MentalPractice -> "mental"
+            is PlanTask.RhythmGame -> "rhythm_game"
             is PlanTask.NoteEntry -> "note"
             is PlanTask.Cooldown -> "cooldown"
         }

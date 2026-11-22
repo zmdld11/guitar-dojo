@@ -58,6 +58,12 @@ sealed interface StepResult {
         val text: String,
     ) : StepResult
 
+    /** 节奏对拍小游戏走完或失败后确认；accuracy 是本局命中率（0-1）。 */
+    data class RhythmPlayed(
+        val levelId: String,
+        val accuracy: Double,
+    ) : StepResult
+
     /** 只标记完成（设备卡、心理练习、保养清单）。 */
     data object Simple : StepResult
 }
@@ -203,6 +209,7 @@ class PlanRepository(
                 is StepResult.CardRated -> cardRecorder.record(today, result)
                 is StepResult.Assessed -> recordAssessment(today, entity.tuningPassed, result)
                 is StepResult.NoteSaved -> note = result.text.trim()
+                is StepResult.RhythmPlayed -> Unit
                 StepResult.Simple -> Unit
             }
             val completedSet = completed.toSet()
