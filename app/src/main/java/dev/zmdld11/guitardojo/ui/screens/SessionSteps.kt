@@ -1,6 +1,7 @@
 package dev.zmdld11.guitardojo.ui.screens
 
 import android.os.SystemClock
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -109,6 +110,14 @@ internal fun PracticeLikeStep(
     }
     TaskCard(title = taskLabel(task)) {
         StepReason(task.reason)
+        if (task is PlanTask.Warmup) {
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = "热身是把手活动开，不是练到酸。",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         if (focusNotes.isNotBlank()) {
             Spacer(Modifier.height(8.dp))
             Text(
@@ -320,6 +329,39 @@ internal fun SimpleStep(
         StepReason(task.reason)
         Spacer(Modifier.height(16.dp))
         Button(onClick = { onComplete(stepIndex, StepResult.Simple) }) {
+            Text("完成")
+        }
+    }
+}
+
+@Composable
+internal fun CooldownStep(
+    task: PlanTask.Cooldown,
+    stepIndex: Int,
+    onComplete: (Int, StepResult) -> Unit,
+) {
+    val items = remember { listOf("干布擦弦，从琴桥往琴头", "琴放回琴架或琴盒", "音箱先关音量再断电，线收好") }
+    var checked by remember { mutableStateOf(items.map { false }) }
+    TaskCard(title = taskLabel(task)) {
+        StepReason(task.reason)
+        Spacer(Modifier.height(8.dp))
+        items.forEachIndexed { i, item ->
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable { checked = checked.toMutableList().also { it[i] = !it[i] } },
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Checkbox(checked = checked[i], onCheckedChange = { value -> checked = checked.toMutableList().also { it[i] = value } })
+                Text(text = item, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+        Spacer(Modifier.height(12.dp))
+        Button(
+            onClick = { onComplete(stepIndex, StepResult.Simple) },
+            enabled = checked.all { it },
+        ) {
             Text("完成")
         }
     }
