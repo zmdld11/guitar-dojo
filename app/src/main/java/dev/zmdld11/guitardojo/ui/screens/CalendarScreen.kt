@@ -287,7 +287,7 @@ private fun AttemptRow(
                     SelfRating.OK.name -> "刚好"
                     else -> "吃力"
                 },
-                if (attempt.clean) "干净" else "有停顿",
+                if (attempt.clean) "干净" else "未干净",
                 attempt.scoreAccuracy?.let { "音准 ${(it * 100).toInt()}%" },
                 attempt.scoreRhythm?.let { "节奏 ${(it * 100).toInt()}%" },
             ).joinToString(" · "),

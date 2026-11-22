@@ -250,18 +250,59 @@ private fun taskPhraseId(task: PlanTask): String =
         else -> ""
     }
 
-/** 错误音的展示行；全部正确时给一句汇总。 */
+/** 错误音的展示行；问题少时逐行列出，多时按小节聚合，全部正确时给一句汇总。 */
 private fun verdictLines(scores: PerformanceScores): List<String> {
     val problems = scores.verdicts.filter { it.kind != VerdictKind.CORRECT }
     if (problems.isEmpty()) return listOf("全部 ${scores.verdicts.size} 个音符正确")
     val correctCount = scores.verdicts.size - problems.size
-    val lines = problems.map { verdictText(it) }
+    val lines =
+        if (problems.size <= DETAIL_VERDICT_LIMIT) {
+            problems.map { verdictText(it) }
+        } else {
+            summarizeVerdicts(problems)
+        }
     return if (correctCount > 0) {
         lines + listOf("其余 $correctCount 个音正确")
     } else {
         lines
     }
 }
+
+/** 逐音明细的行数上限，超过就按小节聚合。 */
+private const val DETAIL_VERDICT_LIMIT = 12
+
+/** 聚合行的组数上限，超出的并进末行汇总。 */
+private const val SUMMARY_VERDICT_GROUPS = 10
+
+/** 按小节与问题类型聚合：「第 1 小节 · 漏弹 16 个」。 */
+private fun summarizeVerdicts(problems: List<NoteVerdict>): List<String> {
+    val groups =
+        problems
+            .groupBy { it.barIndex to it.kind }
+            .entries
+            .sortedWith(compareBy({ it.key.first }, { it.key.second.ordinal }))
+    val lines =
+        groups.take(SUMMARY_VERDICT_GROUPS).map { (key, group) ->
+            val (barIndex, kind) = key
+            val bar = if (barIndex >= 0) "第 ${barIndex + 1} 小节 · " else ""
+            "$bar${kindLabel(kind)} ${group.size} 个"
+        }
+    val rest = groups.drop(SUMMARY_VERDICT_GROUPS).sumOf { it.value.size }
+    return if (rest > 0) {
+        lines + listOf("其余 $rest 处问题")
+    } else {
+        lines
+    }
+}
+
+private fun kindLabel(kind: VerdictKind): String =
+    when (kind) {
+        VerdictKind.WRONG_PITCH -> "音高不对"
+        VerdictKind.WRONG_TIMING -> "起音偏差"
+        VerdictKind.MISSING -> "漏弹"
+        VerdictKind.EXTRA -> "多弹"
+        VerdictKind.CORRECT -> ""
+    }
 
 private fun verdictText(verdict: NoteVerdict): String {
     val bar = if (verdict.barIndex >= 0) "第 ${verdict.barIndex + 1} 小节 · " else ""
