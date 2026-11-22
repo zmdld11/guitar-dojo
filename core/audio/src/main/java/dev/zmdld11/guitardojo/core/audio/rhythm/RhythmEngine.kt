@@ -115,6 +115,9 @@ class RhythmEngine(
         ready = false
     }
 
+    /** 本局结算（命中分档与偏差统计）；引擎未就绪时返回 null。 */
+    fun stats(): RhythmStats? = session?.stats()
+
     private fun audioLoop() {
         Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
         val audioTrack = createTrack()
