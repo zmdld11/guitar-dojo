@@ -29,10 +29,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -42,12 +44,15 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import dev.zmdld11.guitardojo.data.PhraseRepository
+import dev.zmdld11.guitardojo.data.TimbrePreference
 import dev.zmdld11.guitardojo.data.cards.BuiltInCards
 import dev.zmdld11.guitardojo.data.cards.CardDeck
 import dev.zmdld11.guitardojo.data.cards.CardProgressStore
 import dev.zmdld11.guitardojo.data.cards.CardScheduler
 import dev.zmdld11.guitardojo.data.cards.TrainingCard
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
@@ -79,15 +84,35 @@ fun CardsScreen(
     var revealed by rememberSaveable(deck) { mutableStateOf(false) }
     var finished by rememberSaveable(deck) { mutableStateOf(false) }
 
+    // 听感示例：循环播放对应乐句，切卡/离开页面/翻卡时停掉
+    val scope = rememberCoroutineScope()
+    val soundPlayer =
+        remember(context) { CardSoundPlayer(PhraseRepository(context), TimbrePreference(context).load()) }
+    var playingSoundId by remember { mutableStateOf<String?>(null) }
+    DisposableEffect(Unit) {
+        onDispose { soundPlayer.stop() }
+    }
+
     val reviewedCount = cards.count { progress[it.id]?.reviewed == true }
     val masteredCount = cards.count { scheduler.isMastered(progress[it.id]) }
     val current = queue.getOrNull(index)
+
+    fun stopSound() {
+        soundPlayer.stop()
+        playingSoundId = null
+    }
+
+    fun toggleSound(card: TrainingCard) {
+        val phraseId = card.sound ?: return
+        scope.launch { playingSoundId = soundPlayer.toggle(phraseId) }
+    }
 
     fun rate(remembered: Boolean) {
         val card = current ?: return
         val updated = scheduler.review(progress[card.id], card.id, today, remembered)
         store.save(updated)
         progress = progress + (card.id to updated)
+        stopSound()
         if (index >= queue.lastIndex) {
             finished = true
         } else {
@@ -162,6 +187,8 @@ fun CardsScreen(
                 CardFace(
                     card = current,
                     revealed = revealed,
+                    soundPlaying = playingSoundId != null,
+                    onToggleSound = if (current.sound != null) ({ toggleSound(current) }) else null,
                     modifier = Modifier.weight(1f),
                 )
                 Spacer(Modifier.height(16.dp))
@@ -198,6 +225,8 @@ fun CardsScreen(
 private fun CardFace(
     card: TrainingCard,
     revealed: Boolean,
+    soundPlaying: Boolean,
+    onToggleSound: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     ElevatedCard(
@@ -242,6 +271,12 @@ private fun CardFace(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                    }
+                    onToggleSound?.let { onToggle ->
+                        Spacer(Modifier.height(14.dp))
+                        OutlinedButton(onClick = onToggle) {
+                            Text(if (soundPlaying) "停止示例" else "听示例")
+                        }
                     }
                     card.figure?.let { path ->
                         CardFigure(path = path, description = card.title)

@@ -48,4 +48,9 @@ data class TrainingCard(
     val detail: String = "",
     /** 可选插图，路径相对 assets，例如 `figures/d3_knobs_layout.png`。 */
     val figure: String? = null,
+    /**
+     * 可选听感示例：内置乐句 id（builtin.*）。卡面答案区出现「听示例」按钮，
+     * 用播放引擎循环播放；先声后符，能听的乐理卡都绑一条。
+     */
+    val sound: String? = null,
 )

@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "id": "builtin.theory.semitone-whole",
+  "title": "教学示例 · 半音与全音",
+  "description": "同一根弦上：5 到 6 品隔半音，5 到 7 品隔全音。A、A#、A、B 的对比。",
+  "difficulty": 1,
+  "tags": [
+    "教学示例"
+  ],
+  "origin": "builtin",
+  "tuning": [
+    40,
+    45,
+    50,
+    55,
+    59,
+    64
+  ],
+  "capo": 0,
+  "ppq": 960,
+  "bars": [
+    {
+      "index": 0,
+      "startTick": 0,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 60
+    }
+  ],
+  "notes": [
+    {
+      "bar": 0,
+      "tick": 0,
+      "durationTicks": 960,
+      "midi": 45,
+      "string": 6,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 960,
+      "durationTicks": 960,
+      "midi": 46,
+      "string": 6,
+      "fret": 6,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 1920,
+      "durationTicks": 960,
+      "midi": 45,
+      "string": 6,
+      "fret": 5,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 2880,
+      "durationTicks": 960,
+      "midi": 47,
+      "string": 6,
+      "fret": 7,
+      "velocity": 0.8,
+      "techniques": []
+    }
+  ],
+  "trackName": "Guitar"
+}

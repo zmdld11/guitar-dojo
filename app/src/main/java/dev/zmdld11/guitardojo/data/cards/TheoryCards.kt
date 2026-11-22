@@ -10,6 +10,7 @@ internal object TheoryCards {
                 prompt = "从最粗的 6 弦到最细的 1 弦，空弦音名是什么？",
                 answer = "E A D G B E",
                 detail = "第 6 弦最粗音最低，第 1 弦最细音最高；调音器吉他模式按这个顺序过弦。",
+                sound = "builtin.theory.open-strings",
             ),
             TrainingCard(
                 id = "theory.semitone",
@@ -18,6 +19,7 @@ internal object TheoryCards {
                 prompt = "同一根弦上，相邻两品、隔一品，分别是什么音程？",
                 answer = "相邻两品是半音，隔一品是全音。",
                 detail = "第 12 品比空弦高一个八度。",
+                sound = "builtin.theory.semitone-whole",
             ),
             TrainingCard(
                 id = "theory.octave",
@@ -26,6 +28,7 @@ internal object TheoryCards {
                 prompt = "同一根弦上，第几品比空弦高一个八度？",
                 answer = "第 12 品。",
                 detail = "第 12 品正好是弦长的一半，频率翻倍。",
+                sound = "builtin.theory.octave-6th",
             ),
             TrainingCard(
                 id = "theory.chromatic",
@@ -42,6 +45,7 @@ internal object TheoryCards {
                 prompt = "G 大调音阶是哪几个音？「全全半全全全半」的结构变了吗？",
                 answer = "G A B C D E F# G；结构不变，F# 是把第 7 音升半音凑出来的。",
                 detail = "第 2 周乐句就是 G 大调，弹到 F# 时留意它与 C 大调的不同。",
+                sound = "builtin.scale.g-major",
             ),
             TrainingCard(
                 id = "theory.natural-minor",
@@ -58,6 +62,7 @@ internal object TheoryCards {
                 prompt = "从 C 大调音阶里去掉哪两个音，得到 C 大调五声？",
                 answer = "去掉 4（F）和 7（B），剩 C D E G A。",
                 detail = "去掉最容易撞的音，怎么摆都不难听——五声音阶好用的原因。",
+                sound = "builtin.scale.c-major",
             ),
             TrainingCard(
                 id = "theory.minor-pentatonic",
@@ -66,6 +71,7 @@ internal object TheoryCards {
                 prompt = "A 小调五声是 A C D E G，比 A 自然小调少了哪两个音？",
                 answer = "少了 2（B）和 b6（F）。",
                 detail = "第 3 周乐句就是它；少了这两个音，即兴不容易出错。",
+                sound = "builtin.scale.a-minor-pentatonic",
             ),
             TrainingCard(
                 id = "theory.major-third",
@@ -74,6 +80,7 @@ internal object TheoryCards {
                 prompt = "大三度和小三度，哪个听起来更亮？各隔几个半音？",
                 answer = "大三度隔 4 个半音，更亮；小三度隔 3 个半音，更暗。",
                 detail = "C–E 是大三度，C–Eb 是小三度；先用耳朵分大小，再数半音核对。",
+                sound = "builtin.theory.thirds",
             ),
             TrainingCard(
                 id = "theory.perfect-fifth",
@@ -82,6 +89,7 @@ internal object TheoryCards {
                 prompt = "E5 的根音到五度音隔几个半音？是什么音程？",
                 answer = "7 个半音，纯五度。",
                 detail = "E5 只由这两个音构成；第 4 周弹它时听一听这种「空」的音响。",
+                sound = "builtin.riff.e5-power",
             ),
             TrainingCard(
                 id = "theory.time-4-4",
@@ -130,6 +138,7 @@ internal object TheoryCards {
                 prompt = "强力和弦（5 和弦）由哪两个音组成？E5 是哪两个音？",
                 answer = "根音 + 纯五度；E5 是 E 和 B。",
                 detail = "电吉他常用根音 + 五度 + 八度，失真下更厚；切失真前先看设备卡的失真设置。",
+                sound = "builtin.riff.e5-power",
             ),
         )
 }

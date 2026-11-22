@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "builtin.theory.open-strings",
+  "title": "教学示例 · 六根空弦",
+  "description": "从最粗的 6 弦到最细的 1 弦，依次弹空弦：E A D G B E。",
+  "difficulty": 1,
+  "tags": [
+    "教学示例"
+  ],
+  "origin": "builtin",
+  "tuning": [
+    40,
+    45,
+    50,
+    55,
+    59,
+    64
+  ],
+  "capo": 0,
+  "ppq": 960,
+  "bars": [
+    {
+      "index": 0,
+      "startTick": 0,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 60
+    },
+    {
+      "index": 1,
+      "startTick": 3840,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 60
+    }
+  ],
+  "notes": [
+    {
+      "bar": 0,
+      "tick": 0,
+      "durationTicks": 960,
+      "midi": 40,
+      "string": 6,
+      "fret": 0,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 960,
+      "durationTicks": 960,
+      "midi": 45,
+      "string": 5,
+      "fret": 0,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 1920,
+      "durationTicks": 960,
+      "midi": 50,
+      "string": 4,
+      "fret": 0,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 2880,
+      "durationTicks": 960,
+      "midi": 55,
+      "string": 3,
+      "fret": 0,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 3840,
+      "durationTicks": 960,
+      "midi": 59,
+      "string": 2,
+      "fret": 0,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 1,
+      "tick": 4800,
+      "durationTicks": 960,
+      "midi": 64,
+      "string": 1,
+      "fret": 0,
+      "velocity": 0.8,
+      "techniques": []
+    }
+  ],
+  "trackName": "Guitar"
+}

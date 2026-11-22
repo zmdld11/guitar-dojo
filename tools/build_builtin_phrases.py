@@ -232,6 +232,47 @@ def first_light_melody() -> dict:
     return b.build()
 
 
+def theory_open_strings() -> dict:
+    b = Builder("builtin.theory.open-strings", "教学示例 · 六根空弦",
+                "从最粗的 6 弦到最细的 1 弦，依次弹空弦：E A D G B E。",
+                1, ["教学示例"], 60, 2)
+    for index, string in enumerate(range(6, 0, -1)):
+        bar, beat = divmod(index, 4)
+        b.add(bar, beat, 1.0, string, 0)
+    return b.build()
+
+
+def theory_semitone_whole() -> dict:
+    b = Builder("builtin.theory.semitone-whole", "教学示例 · 半音与全音",
+                "同一根弦上：5 到 6 品隔半音，5 到 7 品隔全音。A、A#、A、B 的对比。",
+                1, ["教学示例"], 60, 1)
+    b.add(0, 0, 1.0, 6, 5)
+    b.add(0, 1, 1.0, 6, 6)
+    b.add(0, 2, 1.0, 6, 5)
+    b.add(0, 3, 1.0, 6, 7)
+    return b.build()
+
+
+def theory_octave_6th() -> dict:
+    b = Builder("builtin.theory.octave-6th", "教学示例 · 六弦八度",
+                "6 弦空弦到 12 品，高一个八度；12 品正好是弦长的一半，频率翻倍。",
+                1, ["教学示例"], 60, 1)
+    b.add(0, 0, 2.0, 6, 0)
+    b.add(0, 2, 2.0, 6, 12)
+    return b.build()
+
+
+def theory_thirds() -> dict:
+    b = Builder("builtin.theory.thirds", "教学示例 · 大三度与小三度",
+                "C–E（大三度，4 个半音）与 C–Eb（小三度，3 个半音）先后对比。",
+                1, ["教学示例"], 60, 1)
+    b.add(0, 0, 1.0, 2, 1)
+    b.add(0, 1, 1.0, 1, 0)
+    b.add(0, 2, 1.0, 2, 1)
+    b.add(0, 3, 1.0, 2, 4)
+    return b.build()
+
+
 PHRASES = [
     ("chromatic-basic.json", chromatic_basic),
     ("chromatic-reverse.json", chromatic_reverse),
@@ -241,6 +282,10 @@ PHRASES = [
     ("scale-a-minor-pentatonic.json", a_minor_pentatonic),
     ("riff-e5-power.json", e5_power_riff),
     ("melody-first-light.json", first_light_melody),
+    ("theory-open-strings.json", theory_open_strings),
+    ("theory-semitone-whole.json", theory_semitone_whole),
+    ("theory-octave-6th.json", theory_octave_6th),
+    ("theory-thirds.json", theory_thirds),
 ]
 
 

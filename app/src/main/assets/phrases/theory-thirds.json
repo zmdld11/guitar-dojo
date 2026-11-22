@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "id": "builtin.theory.thirds",
+  "title": "教学示例 · 大三度与小三度",
+  "description": "C–E（大三度，4 个半音）与 C–Eb（小三度，3 个半音）先后对比。",
+  "difficulty": 1,
+  "tags": [
+    "教学示例"
+  ],
+  "origin": "builtin",
+  "tuning": [
+    40,
+    45,
+    50,
+    55,
+    59,
+    64
+  ],
+  "capo": 0,
+  "ppq": 960,
+  "bars": [
+    {
+      "index": 0,
+      "startTick": 0,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 60
+    }
+  ],
+  "notes": [
+    {
+      "bar": 0,
+      "tick": 0,
+      "durationTicks": 960,
+      "midi": 60,
+      "string": 2,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 960,
+      "durationTicks": 960,
+      "midi": 64,
+      "string": 1,
+      "fret": 0,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 1920,
+      "durationTicks": 960,
+      "midi": 60,
+      "string": 2,
+      "fret": 1,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 2880,
+      "durationTicks": 960,
+      "midi": 63,
+      "string": 2,
+      "fret": 4,
+      "velocity": 0.8,
+      "techniques": []
+    }
+  ],
+  "trackName": "Guitar"
+}

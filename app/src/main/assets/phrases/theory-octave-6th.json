@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "id": "builtin.theory.octave-6th",
+  "title": "教学示例 · 六弦八度",
+  "description": "6 弦空弦到 12 品，高一个八度；12 品正好是弦长的一半，频率翻倍。",
+  "difficulty": 1,
+  "tags": [
+    "教学示例"
+  ],
+  "origin": "builtin",
+  "tuning": [
+    40,
+    45,
+    50,
+    55,
+    59,
+    64
+  ],
+  "capo": 0,
+  "ppq": 960,
+  "bars": [
+    {
+      "index": 0,
+      "startTick": 0,
+      "lengthTicks": 3840,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "tempoBpm": 60
+    }
+  ],
+  "notes": [
+    {
+      "bar": 0,
+      "tick": 0,
+      "durationTicks": 1920,
+      "midi": 40,
+      "string": 6,
+      "fret": 0,
+      "velocity": 0.8,
+      "techniques": []
+    },
+    {
+      "bar": 0,
+      "tick": 1920,
+      "durationTicks": 1920,
+      "midi": 52,
+      "string": 6,
+      "fret": 12,
+      "velocity": 0.8,
+      "techniques": []
+    }
+  ],
+  "trackName": "Guitar"
+}
