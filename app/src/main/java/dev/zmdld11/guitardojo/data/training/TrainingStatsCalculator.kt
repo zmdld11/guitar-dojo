@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
-/** 今日页展示用的统计。 */
+/** 今日页展示用的统计。连续天数与本周次数只算有效练习；todayFinished 表示当日流程走完（不要求有效时长）。 */
 data class TrainingStats(
     val streakDays: Int,
     val weekSessions: Int,
@@ -27,10 +27,11 @@ class TrainingStatsCalculator(
             val finished = db.trainingDayDao().finished()
             val date = LocalDate.ofEpochDay(today)
             val weekStart = date.minusDays((date.dayOfWeek.value - 1).toLong()).toEpochDay()
+            val validDays = finished.filter(::isValidSession).map { it.epochDay }.toSet()
             val weekSessions =
                 finished.count { it.epochDay in weekStart..(weekStart + 6) && isValidSession(it) }
             TrainingStats(
-                streakDays = countStreak(today, finished.map { it.epochDay }.toSet()),
+                streakDays = countStreak(today, validDays),
                 weekSessions = weekSessions,
                 weekGoal = profile.weeklyGoal,
                 totalMinutes = (finished.sumOf { it.practiceSeconds } / 60).toInt(),
@@ -56,4 +57,4 @@ class TrainingStatsCalculator(
 internal fun isValidSession(entity: TrainingDayEntity): Boolean =
     entity.kind == DayKind.NO_GUITAR.name || entity.practiceSeconds >= VALID_SESSION_SECONDS
 
-private const val VALID_SESSION_SECONDS = 5L * 60
+internal const val VALID_SESSION_SECONDS = 5L * 60

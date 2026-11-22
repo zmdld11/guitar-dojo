@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -77,7 +78,31 @@ fun SessionScreen(
                     val snapshot = state.snapshot ?: return@Column
                     val plan = snapshot.plan
                     val stepIndex = snapshot.entity.currentStep
-                    val task = plan.tasks.getOrNull(stepIndex) ?: return@Column
+                    val task = plan.tasks.getOrNull(stepIndex)
+                    if (task == null) {
+                        // 全部步骤完成：给完成态，而不是空白页
+                        Spacer(Modifier.height(16.dp))
+                        Text("今日训练完成", style = MaterialTheme.typography.headlineSmall)
+                        snapshot.entity.practiceSeconds.takeIf { it > 0 }?.let { seconds ->
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = "练习 ${seconds / 60} 分钟",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = "考核记录与打卡明细在打卡日历里。",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Button(onClick = onBack) {
+                            Text("返回")
+                        }
+                        return@Column
+                    }
                     // 步骤进入时刻，练习类步骤完成时累计有效练习时长
                     val enteredAt = remember(stepIndex) { SystemClock.elapsedRealtime() }
                     StepHeader(
