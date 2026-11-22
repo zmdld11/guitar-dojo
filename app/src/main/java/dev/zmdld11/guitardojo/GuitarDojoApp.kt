@@ -39,6 +39,7 @@ import dev.zmdld11.guitardojo.ui.screens.TodayScreen
 import dev.zmdld11.guitardojo.ui.screens.ToolsScreen
 import dev.zmdld11.guitardojo.ui.screens.cards.CardsScreen
 import dev.zmdld11.guitardojo.ui.screens.metronome.MetronomeScreen
+import dev.zmdld11.guitardojo.ui.screens.rhythm.RhythmGameScreen
 import dev.zmdld11.guitardojo.ui.screens.tuner.TunerScreen
 
 private const val PAGE_FADE_MILLIS = 180
@@ -46,6 +47,7 @@ private const val PAGE_SLIDE_MILLIS = 240
 
 private const val METRONOME_ROUTE = "metronome"
 private const val TUNER_ROUTE = "tuner"
+private const val RHYTHM_ROUTE = "rhythm"
 private const val PHRASE_ROUTE = "phrase/{phraseId}?speed={speed}&loopStart={loopStart}&loopEnd={loopEnd}"
 private const val CARDS_ROUTE = "cards/{deckId}"
 private const val SESSION_ROUTE = "session"
@@ -128,6 +130,7 @@ fun GuitarDojoApp() {
                         ToolsScreen(
                             onOpenMetronome = { navController.navigate(METRONOME_ROUTE) },
                             onOpenTuner = { navController.navigate(TUNER_ROUTE) },
+                            onOpenRhythm = { navController.navigate(RHYTHM_ROUTE) },
                             onOpenCards = { deck -> navController.navigate(cardsRoute(deck)) },
                         )
                     }
@@ -140,6 +143,9 @@ fun GuitarDojoApp() {
                     }
                     composable(TUNER_ROUTE) {
                         TunerScreen(onBack = { navController.popBackStack() })
+                    }
+                    composable(RHYTHM_ROUTE) {
+                        RhythmGameScreen(onBack = { navController.popBackStack() })
                     }
                     composable(SESSION_ROUTE) {
                         SessionScreen(

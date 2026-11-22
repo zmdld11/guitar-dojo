@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.CleaningServices
 import androidx.compose.material.icons.outlined.GraphicEq
+import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.Speaker
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Icon
@@ -40,6 +41,7 @@ import dev.zmdld11.guitardojo.ui.screens.cards.rememberCardProgress
 fun ToolsScreen(
     onOpenMetronome: () -> Unit,
     onOpenTuner: () -> Unit,
+    onOpenRhythm: () -> Unit,
     onOpenCards: (CardDeck) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -72,6 +74,14 @@ fun ToolsScreen(
             milestone = if (metronomePlaying) "播放中" else null,
             icon = Icons.Outlined.Timer,
             onClick = onOpenMetronome,
+        )
+        Spacer(Modifier.height(12.dp))
+        ToolCard(
+            title = "节奏对拍",
+            description = "球到圆心的瞬间点下去。",
+            milestone = null,
+            icon = Icons.Outlined.MusicNote,
+            onClick = onOpenRhythm,
         )
         Spacer(Modifier.height(12.dp))
         ToolCard(
