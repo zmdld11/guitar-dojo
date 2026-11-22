@@ -12,7 +12,7 @@ class BuiltInCardsTest {
         assertEquals("卡片 id 不能重复", ids.size, ids.toSet().size)
 
         assertEquals(16, BuiltInCards.byDeck(CardDeck.THEORY).size)
-        assertEquals(12, BuiltInCards.byDeck(CardDeck.PRACTICE).size)
+        assertEquals(13, BuiltInCards.byDeck(CardDeck.PRACTICE).size)
         assertEquals(8, BuiltInCards.byDeck(CardDeck.SETUP).size)
         assertEquals(6, BuiltInCards.byDeck(CardDeck.MAINTENANCE).size)
     }

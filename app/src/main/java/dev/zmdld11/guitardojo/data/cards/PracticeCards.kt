@@ -89,7 +89,7 @@ internal object PracticeCards {
                 title = "休息",
                 prompt = "练多久要休息？",
                 answer = "20–25 分钟休息 3–5 分钟。",
-                detail = "手酸、发麻、刺痛立刻停；休息不是偷懒。",
+                detail = "手酸、发麻、刺痛立刻停；疼感休息 10–15 分钟后还不消，当天别再练。",
             ),
             TrainingCard(
                 id = "practice.streak",
@@ -98,6 +98,14 @@ internal object PracticeCards {
                 prompt = "打卡应该追求连续多少天？",
                 answer = "先追求本周 4 次有效练习。",
                 detail = "漏一天不用补课，别连漏两天。",
+            ),
+            TrainingCard(
+                id = "practice.mental",
+                deck = CardDeck.PRACTICE,
+                title = "心理练习",
+                prompt = "没有琴的时候怎么练？",
+                answer = "闭眼按小节过一遍：先想指法和把位，再在心里「听」一遍。",
+                detail = "心理练习不及真弹，但对乐句这类认知负荷高的任务有效；回琴上第一遍往往更顺。",
             ),
         )
 }
