@@ -133,6 +133,7 @@ class PlanGenerator(
             loopBarCount = barCount,
             blocks = blocks,
             isFullRun = isFullRun,
+            focusNotes = main.focusNotes,
             reason = reason,
         )
     }

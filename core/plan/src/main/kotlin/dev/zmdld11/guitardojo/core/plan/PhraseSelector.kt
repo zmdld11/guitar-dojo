@@ -5,6 +5,7 @@ internal data class SelectedMain(
     val phraseId: String,
     val bpm: Double,
     val reason: String,
+    val focusNotes: String = "",
 )
 
 /** 热身句选择结果。 */
@@ -29,7 +30,8 @@ internal data class AssessPick(
 )
 
 /** 课程里按周序展开的全部乐句 id。 */
-internal fun curriculumOrder(curriculum: Curriculum): List<String> = curriculum.weeks.sortedBy { it.index }.flatMap { it.phraseIds }
+internal fun curriculumOrder(curriculum: Curriculum): List<String> =
+    curriculum.weeks.sortedBy { it.index }.flatMap { it.phraseIds }.distinct()
 
 /**
  * 从课程与历史里挑今天练什么。只读输入，不写任何状态。
@@ -94,7 +96,7 @@ internal class PhraseSelector(
             } else {
                 "本周技术点「${week.focus}」；${info.title.ifEmpty { phraseId }} 继续在 ${bpm.toInt()} BPM 练"
             }
-        return SelectedMain(phraseId, bpm, reason)
+        return SelectedMain(phraseId, bpm, reason, focusNotes = week.focusNotes)
     }
 
     /** 热身：已掌握的热身/爬格子句取最久没练的；没有则用课程第一条（与主练句不同时）。 */

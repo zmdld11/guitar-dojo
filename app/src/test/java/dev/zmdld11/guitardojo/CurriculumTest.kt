@@ -14,8 +14,11 @@ class CurriculumTest {
         val curriculum = CurriculumCodec.decode(asset().readText())
 
         assertEquals("builtin.curriculum.starter", curriculum.id)
-        assertEquals(4, curriculum.weeks.size)
-        assertEquals(listOf(1, 2, 3, 4), curriculum.weeks.map { it.index })
+        assertEquals(12, curriculum.weeks.size)
+        assertEquals((1..12).toList(), curriculum.weeks.map { it.index })
+        curriculum.weeks.forEach { week ->
+            assertTrue("第 ${week.index} 周缺 focusNotes", week.focusNotes.isNotBlank())
+        }
     }
 
     @Test

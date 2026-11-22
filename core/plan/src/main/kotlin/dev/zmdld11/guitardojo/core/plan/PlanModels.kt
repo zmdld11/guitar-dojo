@@ -99,6 +99,8 @@ data class CurriculumWeek(
     val phraseIds: List<String>,
     val targetBpm: Double,
     val theoryCardIds: List<String> = emptyList(),
+    /** 每周讲解：这个技术点在练什么、合格判据、常见坑。2–3 句，主练步展示。 */
+    val focusNotes: String = "",
 )
 
 @Serializable
@@ -165,10 +167,12 @@ sealed interface PlanTask {
         val loopBarCount: Int,
         /** 5 分钟练习块数量，块间提示休息。 */
         val blocks: Int,
-        /** true 表示整段拼接/完整跑（60 分钟档收尾用）。 */
-        val isFullRun: Boolean = false,
-        override val reason: String,
-    ) : PlanTask
+    /** true 表示整段拼接/完整跑（60 分钟档收尾用）。 */
+    val isFullRun: Boolean = false,
+    override val reason: String,
+    /** 当周技术点讲解，来自 curriculum 的 focusNotes；空表示本周无讲解。 */
+    val focusNotes: String = "",
+) : PlanTask
 
     @Serializable
     @SerialName("review")

@@ -99,6 +99,7 @@ internal fun PracticeLikeStep(
             is PlanTask.Practice -> task.speed
             else -> null
         }
+    val focusNotes = (task as? PlanTask.Practice)?.focusNotes.orEmpty()
     var elapsedSeconds by remember(stepIndex) { mutableStateOf(0L) }
     LaunchedEffect(stepIndex) {
         while (true) {
@@ -108,6 +109,14 @@ internal fun PracticeLikeStep(
     }
     TaskCard(title = taskLabel(task)) {
         StepReason(task.reason)
+        if (focusNotes.isNotBlank()) {
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = focusNotes,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         Spacer(Modifier.height(8.dp))
         Text(
             text =

@@ -56,14 +56,17 @@ object CurriculumValidator {
                 if (id.isBlank()) issues += "$label.phraseIds[${j + 1}] 不能为空"
             }
         }
-        val duplicates =
+        // 跨周复用是刻意的（巩固周重弹已学句、新旧句并行）；只禁止同一周内重复。
+        val weekDuplicates =
             curriculum.weeks
-                .flatMap { it.phraseIds }
-                .groupingBy { it }
-                .eachCount()
-                .filterValues { it > 1 }
-                .keys
-        if (duplicates.isNotEmpty()) issues += "同一乐句出现在多个周：${duplicates.joinToString()}"
+                .flatMap { week ->
+                    week.phraseIds
+                        .groupingBy { it }
+                        .eachCount()
+                        .filterValues { it > 1 }
+                        .keys
+                }.filter { it.isNotEmpty() }
+        if (weekDuplicates.isNotEmpty()) issues += "同一周内乐句重复：${weekDuplicates.joinToString()}"
 
         return issues
     }

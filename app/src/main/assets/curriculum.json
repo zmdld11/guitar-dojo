@@ -1,35 +1,103 @@
 {
   "schemaVersion": 1,
   "id": "builtin.curriculum.starter",
-  "title": "入门 4 周",
+  "title": "入门 12 周",
   "weeks": [
     {
       "index": 1,
       "focus": "左手独立与 1-2-3-4 指序",
+      "focusNotes": "四根手指按 1-2-3-4 顺序起落，拇指放在琴颈后方与中指对齐，手腕保持直。合格：每个音清楚、不蹭弦，手指抬起刚好离弦。常见坑：手指抬太高、拇指从琴颈上方探头。",
       "phraseIds": ["builtin.chromatic.basic", "builtin.scale.c-major"],
       "targetBpm": 80,
       "theoryCardIds": ["theory.string-names", "theory.time-4-4"]
     },
     {
       "index": 2,
-      "focus": "反向与跨弦",
-      "phraseIds": ["builtin.chromatic.reverse", "builtin.scale.g-major"],
-      "targetBpm": 88,
-      "theoryCardIds": ["theory.note-values", "theory.chromatic"]
+      "focus": "音名与八度：品格板地图",
+      "focusNotes": "在品格板上认音：先记住每根空弦 E A D G B E，再用「隔一品是全音、相邻是半音」推出品位。合格：任意说出 6 弦 5 品以内的音名。常见坑：死背品位表——先记空弦，其余靠推。",
+      "phraseIds": ["builtin.chromatic.basic", "builtin.scale.c-major"],
+      "targetBpm": 82,
+      "theoryCardIds": ["theory.octave", "theory.semitone"]
     },
     {
       "index": 3,
-      "focus": "三连音与五声",
-      "phraseIds": ["builtin.chromatic.triplet", "builtin.scale.a-minor-pentatonic"],
+      "focus": "交替拨弦与跨弦",
+      "focusNotes": "上下交替拨弦，运动来自手腕，拨片握得松。跨弦时整只手平移，不要单根手指伸过去。合格：跨弦不卡、拨弦方向不乱。常见坑：全部下拨、跨弦时手跟着歪。",
+      "phraseIds": ["builtin.chromatic.reverse", "builtin.chromatic.triplet"],
+      "targetBpm": 84,
+      "theoryCardIds": ["theory.note-values", "theory.chromatic"]
+    },
+    {
+      "index": 4,
+      "focus": "C 大调音阶",
+      "focusNotes": "两个八度的 C 大调，边弹边把音名念出来。合格：80 BPM 左右八分音符连贯，音名能跟着说。常见坑：只看指法不看音名——认识音名是后面听感与调性的地基。",
+      "phraseIds": ["builtin.scale.c-major", "builtin.chromatic.triplet"],
+      "targetBpm": 86,
+      "theoryCardIds": ["theory.major-scale", "theory.key-signature"]
+    },
+    {
+      "index": 5,
+      "focus": "G 大调音阶",
+      "focusNotes": "G 大调多了一个 F#：结构还是「全全半全全全半」，第 7 音升半音凑出来。对比 C 大调弹，注意 F 处变成 F#。合格：换调不乱，F# 不漏。常见坑：以为换调要换全部指法——指型基本不变。",
+      "phraseIds": ["builtin.scale.g-major", "builtin.chromatic.reverse"],
+      "targetBpm": 88,
+      "theoryCardIds": ["theory.natural-minor", "theory.major-pentatonic"]
+    },
+    {
+      "index": 6,
+      "focus": "换把与连贯（巩固周）",
+      "focusNotes": "本周不加新概念：把 G 大调换把处放慢单独练，再拼回去。合格：换把不中断，速度稳定在 90 BPM。常见坑：换把时手松开琴颈——拇指贴着琴颈滑过去。",
+      "phraseIds": ["builtin.scale.g-major", "builtin.chromatic.triplet"],
+      "targetBpm": 90,
+      "theoryCardIds": []
+    },
+    {
+      "index": 7,
+      "focus": "A 小调五声",
+      "focusNotes": "A 小调五声是 A C D E G：比自然小调少了 2 和 b6，怎么弹都不难听。它是 riff 与即兴的常用素材。合格：指型记熟，能从任一音起弹完整音阶。常见坑：和 G 大调指型混——先记住根音 A 的位置。",
+      "phraseIds": ["builtin.scale.a-minor-pentatonic", "builtin.scale.g-major"],
       "targetBpm": 92,
       "theoryCardIds": ["theory.minor-pentatonic", "theory.time-6-8"]
     },
     {
-      "index": 4,
-      "focus": "应用：riff 与旋律",
-      "phraseIds": ["builtin.riff.e5-power", "builtin.melody.first-light"],
+      "index": 8,
+      "focus": "五声进阶（巩固周）",
+      "focusNotes": "本周不加新概念：五声音阶换起点弹，试试从 E 和 G 起手，听旋律线的差别。合格：两个把位连续弹不中断。常见坑：越弹越快——节奏稳定比速度重要。",
+      "phraseIds": ["builtin.scale.a-minor-pentatonic", "builtin.chromatic.triplet"],
+      "targetBpm": 94,
+      "theoryCardIds": []
+    },
+    {
+      "index": 9,
+      "focus": "强力和弦 riff",
+      "focusNotes": "E5 由根音和纯五度两个音构成，失真下常用。左手两指按好同时起落，右手交替拨。合格：两音同时响、不劈；切弦利落。常见坑：五度音没按实出杂音——先慢速确认两个音都响。",
+      "phraseIds": ["builtin.riff.e5-power", "builtin.chromatic.reverse"],
+      "targetBpm": 88,
+      "theoryCardIds": ["theory.perfect-fifth", "theory.power-chord"]
+    },
+    {
+      "index": 10,
+      "focus": "节奏稳定与律动",
+      "focusNotes": "riff 的关键是休止和重音：不弹的地方手要放松，拍点上落准。开着拍点练，错了立刻重置那两拍。合格：整段跟拍点走完，不赶不拖。常见坑：休止时闷音乱响——左手提前松开。",
+      "phraseIds": ["builtin.riff.e5-power", "builtin.chromatic.triplet"],
+      "targetBpm": 92,
+      "theoryCardIds": ["theory.dotted-note"]
+    },
+    {
+      "index": 11,
+      "focus": "单音旋律应用",
+      "focusNotes": "把前面学的音阶、交替拨、节奏感放进一条完整旋律。先分段练熟再拼全段，完整跑放在最后。合格：原速完整走两遍不中断。常见坑：从头刷整曲占满时间——难点段落单独抠。",
+      "phraseIds": ["builtin.melody.first-light"],
       "targetBpm": 90,
-      "theoryCardIds": ["theory.power-chord", "theory.dotted-note"]
+      "theoryCardIds": []
+    },
+    {
+      "index": 12,
+      "focus": "巩固与录音对比",
+      "focusNotes": "本周不加新内容：复习前几周的句子，录一段留底，和月初对比。合格：任意一句隔天还能在目标速度稳定通过。常见坑：追新速度——巩固周的产出是稳定，不是更快的 BPM。",
+      "phraseIds": ["builtin.melody.first-light", "builtin.riff.e5-power"],
+      "targetBpm": 95,
+      "theoryCardIds": []
     }
   ]
 }
